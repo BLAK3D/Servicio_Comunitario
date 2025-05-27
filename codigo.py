@@ -1,6 +1,6 @@
 from PyQt5.uic import loadUi
 from PyQt5.QtWidgets import QMainWindow, QApplication, QLabel, QFrame, QPushButton, QMessageBox, QLineEdit
-from PyQt5.QtCore import QTimer, QEvent, Qt
+from PyQt5.QtCore import QTimer, Qt
 from PyQt5.QtGui import QIntValidator
 import sys
 
@@ -238,13 +238,33 @@ class ControlVentana(QMainWindow):
     
     def capturar_cambio_tiempo(self):
         if not self.timer3.isActive():
-            seg = int(self.tiempo_seg.text()) +  (int(self.tiempo_min.text()) * 60)
+            try:
+                tm = int(self.tiempo_seg.text()) 
+            except:
+                tm = 0
+            
+            try:
+                ts = int(self.tiempo_min.text()) * 60
+            except:
+                ts = 0
+            
+            seg = tm + ts
             if self.ventana_espectador.segundos + 1 != seg:
                 self.cancelar.show()
                         
     def cambiar_estado_timer(self):
         if not self.ventana_espectador.timer.isActive(): # Cuando esta pausado (darle Play)
-            self.seg = int(self.tiempo_seg.text()) +  (int(self.tiempo_min.text()) * 60)
+            try:
+                tm = int(self.tiempo_seg.text()) 
+            except:
+                tm = 0
+            
+            try:
+                ts = int(self.tiempo_min.text()) * 60
+            except:
+                ts = 0
+            
+            self.seg = tm + ts
             
             self.tiempo_min.setFocusPolicy(Qt.NoFocus)
             self.tiempo_seg.setFocusPolicy(Qt.NoFocus)
