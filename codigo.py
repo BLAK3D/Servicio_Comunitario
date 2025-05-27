@@ -11,13 +11,15 @@ class MainWindow(QMainWindow):
         loadUi("ventana_espectador.ui", self)
         self.control_window = None  # Referencia a la ventana de control (se asigna externamente)
 
+        self.punto_azul = self.findChild(QLabel, "puntos_azul")
+        self.punto_rojo = self.findChild(QLabel, "puntos_rojo1")
         self.contador = self.findChild(QLabel, "contador_1")
         self.contador2 = self.findChild(QLabel, "contador_2")
+        self.medico_azul = self.findChild(QLabel, "medico_azul")
+        self.medico_rojo = self.findChild(QLabel, "medico_rojo")
         self.blue_frame = self.findChild(QFrame, "frame_azul")
         self.yellow_blue_frame = self.findChild(QFrame, "tiempo_azul")
         self.yellow_red_frame = self.findChild(QFrame, "tiempo_rojo")
-        self.punto_azul = self.findChild(QLabel, "puntos_azul")
-        self.punto_rojo = self.findChild(QLabel, "puntos_rojo1")
         self.foto_rojo = self.findChild(QFrame, "foto_rojo")
         self.foto_azul = self.findChild(QFrame, "foto_azul")
         self.info_rojo = self.findChild(QFrame, "info_rojo")
@@ -28,7 +30,13 @@ class MainWindow(QMainWindow):
         self.amarilla_a1 = self.findChild(QFrame, "amarilla_a1")
         self.amarilla_a2 = self.findChild(QFrame, "amarilla_a2")
         self.amarilla_a3 = self.findChild(QFrame, "amarilla_a3")
+        self.tm1 = self.findChild(QPushButton, "tm1")
+        self.tm2 = self.findChild(QPushButton, "tm2")
         
+        self.tm1.hide()
+        self.tm2.hide()
+        self.medico_azul.hide()
+        self.medico_rojo.hide()
         self.amarilla_a1.hide()
         self.amarilla_a2.hide()
         self.amarilla_a3.hide()
@@ -141,6 +149,8 @@ class ControlVentana(QMainWindow):
         self.amarilla_menos_rojo = self.findChild(QPushButton, "amarilla_menos_rojo")
         self.tm_azul = self.findChild(QPushButton, "tm_azul")
         self.tm_rojo = self.findChild(QPushButton, "tm_rojo")
+        self.reset_tm_azul = self.findChild(QPushButton, "reset_tm_azul")
+        self.reset_tm_rojo = self.findChild(QPushButton, "reset_tm_rojo")
         self.tiempo_seg = self.findChild(QLineEdit, "tiempo_seg")
         self.tiempo_min = self.findChild(QLineEdit, "tiempo_min")
         self.dar_pts = self.findChild(QFrame, "dar_pts")
@@ -155,6 +165,8 @@ class ControlVentana(QMainWindow):
         self.tiempo_seg.setText("00")
         self.cancelar.hide()
         self.dar_pts.hide()
+        self.reset_tm_rojo.hide()
+        self.reset_tm_azul.hide()
         
         self.boton_control.clicked.connect(self.cambiar_estado_timer)
         self.editar.clicked.connect(self.permitir_cambios)
@@ -176,6 +188,8 @@ class ControlVentana(QMainWindow):
         
         self.tm_azul.clicked.connect(lambda: self.tiempo_medico("A"))
         self.tm_rojo.clicked.connect(lambda: self.tiempo_medico("R"))
+        self.reset_tm_azul.clicked.connect(lambda: self.reset_tm("A"))
+        self.reset_tm_rojo.clicked.connect(lambda: self.reset_tm("R"))
 
         validador_seg = QIntValidator(0, 59)
         self.tiempo_seg.setValidator(validador_seg)
@@ -228,6 +242,30 @@ class ControlVentana(QMainWindow):
         else:
             self.dar_pts.hide()
  
+    def reset_tm (self, color):
+
+        color1 = "Azul" if color == "A" else "Rojo"
+            
+        confirm = QMessageBox.question(
+            self,
+            "Confirmar Restablecer Tiempo Medico",
+            f"¿Esta seguro de Restablecer el Tiempo Medico del Participante {color1}?",
+            QMessageBox.Yes | QMessageBox.No,
+            QMessageBox.No
+        )
+        
+        if color == "A" and confirm == QMessageBox.Yes:
+            self.azul_tm.setText("2:00")
+            self.ventana_espectador.medico_azul.hide()
+            self.ventana_espectador.tm1.hide()
+            self.reset_tm_azul.hide()
+            
+        elif color == "R" and confirm == QMessageBox.Yes:
+            self.rojo_tm.setText("2:00")
+            self.ventana_espectador.medico_rojo.hide()
+            self.ventana_espectador.tm2.hide()
+            self.reset_tm_rojo.hide()
+        
     def tiempo_medico(self, color = ""):
         tmp = self.azul_tm.text().split(":")
         min = int(tmp[0])
@@ -240,27 +278,49 @@ class ControlVentana(QMainWindow):
         self.seg_rojo = seg + (min * 60)
             
         if color == "A":
-            self.timer_azul.start(1000)
+            if not self.timer_azul.isActive():
+                self.ventana_espectador.medico_azul.show()
+                self.ventana_espectador.tm1.show()
+                self.reset_tm_azul.hide()
+                self.azul_tm.setStyleSheet("color: red;")
+                self.timer_azul.start(1000)
+            else:
+                self.azul_tm.setStyleSheet("")
+                self.reset_tm_azul.show()
+                self.timer_azul.stop()
         else:
-            self.timer_rojo.start(1000)
+            if not self.timer_rojo.isActive():
+                self.ventana_espectador.medico_rojo.show()
+                self.ventana_espectador.tm2.show()
+                self.reset_tm_rojo.hide()
+                self.rojo_tm.setStyleSheet("color: red;")
+                self.timer_rojo.start(1000)
+            else:
+                self.rojo_tm.setStyleSheet("")
+                self.reset_tm_rojo.show()
+                self.timer_rojo.stop()
 
     def contador_medico(self, color):
-        if self.seg_azul >= 0 and color == "A":
+        if self.seg_azul > 0 and color == "A":
             minutos = self.seg_azul // 60
             segundos = self.seg_azul % 60
             self.azul_tm.setText(f"{minutos}:{segundos:02d}")
+            self.ventana_espectador.medico_azul.setText(f"{minutos}:{segundos:02d}")
             self.seg_azul -= 1
             
         elif self.seg_azul == 0 and color == "A":
+            self.reset_tm_azul.show()
             self.timer_azul.stop()
             
-        if self.seg_rojo >= 0 and color == "R":
-            minutos = self.seg_rojo // 60
-            segundos = self.seg_rojo % 60
-            self.rojo_tm.setText(f"{minutos}:{segundos:02d}")
+        elif self.seg_rojo > 0 and color == "R":
+            min2 = self.seg_rojo // 60
+            seg2 = self.seg_rojo % 60
+            self.rojo_tm.setText(f"{min2}:{seg2:02d}")
+            self.ventana_espectador.medico_rojo.setText(f"{min2}:{seg2:02d}")
             self.seg_rojo -= 1
             
         elif self.seg_rojo == 0 and color == "R":
+            self.reset_tm_rojo.show()
             self.timer_rojo.stop()
         
     def srAmarillas(self, color = "", sr = ""):
@@ -336,7 +396,6 @@ class ControlVentana(QMainWindow):
                 
         self.dar_pts.hide()
                 
-        
     def validar_seg(self, texto):
         self.tiempo_seg.textChanged.disconnect()
         try:

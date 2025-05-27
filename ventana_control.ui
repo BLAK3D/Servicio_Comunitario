@@ -30,21 +30,6 @@
   </property>
   <property name="styleSheet">
    <string notr="true">
-QPushButton {
-	color: rgb(0, 0, 0);
-	background: transparent;
-    border-radius: 10px;
-    padding: 10px;
-    border: 1px solid black;
-}
-
-QPushButton:hover {
-	background-color: rgb(206, 206, 206);
-}
-
-QPushButton:pressed {
-    background-color: rgb(80, 80, 80);
-};
 
 background-color: rgb(214, 214, 214);</string>
   </property>
@@ -727,8 +712,7 @@ QPushButton { color: rgb(255, 0, 0); border: 2px solid rgb(255, 0, 0); }</string
     </property>
     <property name="icon">
      <iconset>
-      <normaloff>images/recursos/Sin título.png</normaloff>
-      <activeon>images/recursos/images.png</activeon>images/recursos/Sin título.png</iconset>
+      <normaloff>images/recursos/Sin título.png</normaloff>images/recursos/Sin título.png</iconset>
     </property>
     <property name="iconSize">
      <size>
@@ -1021,7 +1005,7 @@ border-radius: 7px</string>
      </font>
     </property>
     <property name="styleSheet">
-     <string notr="true">border: none;</string>
+     <string notr="true"/>
     </property>
     <property name="text">
      <string>2:00</string>
@@ -1047,13 +1031,81 @@ border-radius: 7px</string>
      </font>
     </property>
     <property name="styleSheet">
-     <string notr="true">border: none;</string>
+     <string notr="true"/>
     </property>
     <property name="text">
      <string>2:00</string>
     </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="reset_tm_azul">
+    <property name="geometry">
+     <rect>
+      <x>200</x>
+      <y>445</y>
+      <width>40</width>
+      <height>30</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>12</pointsize>
+     </font>
+    </property>
+    <property name="layoutDirection">
+     <enum>Qt::LeftToRight</enum>
+    </property>
+    <property name="styleSheet">
+     <string notr="true"/>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+    <property name="icon">
+     <iconset>
+      <normaloff>images/recursos/refresh-icon-free-vector.png</normaloff>images/recursos/refresh-icon-free-vector.png</iconset>
+    </property>
+    <property name="iconSize">
+     <size>
+      <width>30</width>
+      <height>30</height>
+     </size>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="reset_tm_rojo">
+    <property name="geometry">
+     <rect>
+      <x>420</x>
+      <y>445</y>
+      <width>40</width>
+      <height>30</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>12</pointsize>
+     </font>
+    </property>
+    <property name="layoutDirection">
+     <enum>Qt::LeftToRight</enum>
+    </property>
+    <property name="styleSheet">
+     <string notr="true"/>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+    <property name="icon">
+     <iconset>
+      <normaloff>images/recursos/refresh-icon-free-vector.png</normaloff>images/recursos/refresh-icon-free-vector.png</iconset>
+    </property>
+    <property name="iconSize">
+     <size>
+      <width>30</width>
+      <height>30</height>
+     </size>
     </property>
    </widget>
   </widget>
