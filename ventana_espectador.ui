@@ -285,15 +285,15 @@ color: rgb(255, 255, 255);</string>
           <widget class="QLabel" name="medico_azul">
            <property name="geometry">
             <rect>
-             <x>10</x>
+             <x>65</x>
              <y>140</y>
-             <width>250</width>
+             <width>80</width>
              <height>50</height>
             </rect>
            </property>
            <property name="font">
             <font>
-             <pointsize>22</pointsize>
+             <pointsize>26</pointsize>
              <weight>75</weight>
              <bold>true</bold>
              <kerning>true</kerning>
@@ -304,7 +304,7 @@ color: rgb(255, 255, 255);</string>
 color: rgb(255, 255, 255);</string>
            </property>
            <property name="text">
-            <string>Tiempo Médico</string>
+            <string>0:00</string>
            </property>
            <property name="wordWrap">
             <bool>true</bool>
@@ -414,6 +414,29 @@ border-radius: 8px;</string>
            </property>
            <property name="frameShadow">
             <enum>QFrame::Raised</enum>
+           </property>
+          </widget>
+          <widget class="QPushButton" name="tm1">
+           <property name="geometry">
+            <rect>
+             <x>10</x>
+             <y>140</y>
+             <width>51</width>
+             <height>51</height>
+            </rect>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="icon">
+            <iconset>
+             <normaloff>images/recursos/Sin título.png</normaloff>images/recursos/Sin título.png</iconset>
+           </property>
+           <property name="iconSize">
+            <size>
+             <width>50</width>
+             <height>50</height>
+            </size>
            </property>
           </widget>
          </widget>
@@ -611,15 +634,15 @@ color: rgb(255, 255, 255);</string>
           <widget class="QLabel" name="medico_rojo">
            <property name="geometry">
             <rect>
-             <x>10</x>
+             <x>65</x>
              <y>140</y>
-             <width>250</width>
+             <width>80</width>
              <height>50</height>
             </rect>
            </property>
            <property name="font">
             <font>
-             <pointsize>22</pointsize>
+             <pointsize>26</pointsize>
              <weight>75</weight>
              <bold>true</bold>
              <kerning>true</kerning>
@@ -630,7 +653,7 @@ color: rgb(255, 255, 255);</string>
 color: rgb(255, 255, 255);</string>
            </property>
            <property name="text">
-            <string>Tiempo Médico</string>
+            <string>0:00</string>
            </property>
            <property name="wordWrap">
             <bool>true</bool>
@@ -737,6 +760,29 @@ border-radius: 8px;</string>
            </property>
            <property name="frameShadow">
             <enum>QFrame::Raised</enum>
+           </property>
+          </widget>
+          <widget class="QPushButton" name="tm2">
+           <property name="geometry">
+            <rect>
+             <x>10</x>
+             <y>145</y>
+             <width>51</width>
+             <height>41</height>
+            </rect>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="icon">
+            <iconset>
+             <normaloff>images/recursos/cruz_blanca.png</normaloff>images/recursos/cruz_blanca.png</iconset>
+           </property>
+           <property name="iconSize">
+            <size>
+             <width>50</width>
+             <height>50</height>
+            </size>
            </property>
           </widget>
          </widget>

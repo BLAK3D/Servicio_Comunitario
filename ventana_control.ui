@@ -768,7 +768,7 @@ QPushButton { color: rgb(255, 0, 0); border: 2px solid rgb(255, 0, 0); }</string
      </size>
     </property>
    </widget>
-   <widget class="QPushButton" name="tm_azul_2">
+   <widget class="QPushButton" name="amarilla_menos_azul">
     <property name="geometry">
      <rect>
       <x>25</x>
@@ -800,7 +800,7 @@ QPushButton { color: rgb(255, 0, 0); border: 2px solid rgb(255, 0, 0); }</string
      </size>
     </property>
    </widget>
-   <widget class="QPushButton" name="tm_azul_3">
+   <widget class="QPushButton" name="amarilla_mas_azul">
     <property name="geometry">
      <rect>
       <x>90</x>
@@ -832,7 +832,7 @@ QPushButton { color: rgb(255, 0, 0); border: 2px solid rgb(255, 0, 0); }</string
      </size>
     </property>
    </widget>
-   <widget class="QPushButton" name="tm_azul_4">
+   <widget class="QPushButton" name="amarilla_menos_rojo">
     <property name="geometry">
      <rect>
       <x>575</x>
@@ -864,7 +864,7 @@ QPushButton { color: rgb(255, 0, 0); border: 2px solid rgb(255, 0, 0); }</string
      </size>
     </property>
    </widget>
-   <widget class="QPushButton" name="tm_azul_5">
+   <widget class="QPushButton" name="amarilla_mas_rojo">
     <property name="geometry">
      <rect>
       <x>510</x>
@@ -950,7 +950,7 @@ border-radius: 7px</string>
      <set>Qt::AlignCenter</set>
     </property>
    </widget>
-   <widget class="QLabel" name="amarillas_azul_2">
+   <widget class="QLabel" name="amarillas_rojo">
     <property name="geometry">
      <rect>
       <x>460</x>
@@ -976,7 +976,7 @@ border-radius: 7px</string>
      <set>Qt::AlignCenter</set>
     </property>
    </widget>
-   <widget class="QLabel" name="icon_amariila1_2">
+   <widget class="QLabel" name="icon_amariila2">
     <property name="geometry">
      <rect>
       <x>430</x>
@@ -1004,7 +1004,7 @@ border-radius: 7px</string>
      <set>Qt::AlignCenter</set>
     </property>
    </widget>
-   <widget class="QLabel" name="ctrl_pts_azul_2">
+   <widget class="QLabel" name="azul_tm">
     <property name="geometry">
      <rect>
       <x>100</x>
@@ -1024,13 +1024,13 @@ border-radius: 7px</string>
      <string notr="true">border: none;</string>
     </property>
     <property name="text">
-     <string>0:00</string>
+     <string>2:00</string>
     </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>
     </property>
    </widget>
-   <widget class="QLabel" name="ctrl_pts_azul_3">
+   <widget class="QLabel" name="rojo_tm">
     <property name="geometry">
      <rect>
       <x>470</x>
@@ -1050,7 +1050,7 @@ border-radius: 7px</string>
      <string notr="true">border: none;</string>
     </property>
     <property name="text">
-     <string>0:00</string>
+     <string>2:00</string>
     </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>

@@ -22,7 +22,19 @@ class MainWindow(QMainWindow):
         self.foto_azul = self.findChild(QFrame, "foto_azul")
         self.info_rojo = self.findChild(QFrame, "info_rojo")
         self.info_azul = self.findChild(QFrame, "info_azul")
+        self.amarilla_r1 = self.findChild(QFrame, "amarilla_r1")
+        self.amarilla_r2 = self.findChild(QFrame, "amarilla_r2")
+        self.amarilla_r3 = self.findChild(QFrame, "amarilla_r3")
+        self.amarilla_a1 = self.findChild(QFrame, "amarilla_a1")
+        self.amarilla_a2 = self.findChild(QFrame, "amarilla_a2")
+        self.amarilla_a3 = self.findChild(QFrame, "amarilla_a3")
         
+        self.amarilla_a1.hide()
+        self.amarilla_a2.hide()
+        self.amarilla_a3.hide()
+        self.amarilla_r1.hide()
+        self.amarilla_r2.hide()
+        self.amarilla_r3.hide()
         
         self.ajuste_tiempo(0)
         self.play_tiempo()
@@ -123,12 +135,22 @@ class ControlVentana(QMainWindow):
         self.dos_pts = self.findChild(QPushButton, "dos_pts")
         self.cuatro_pts = self.findChild(QPushButton, "cuatro_pts")
         self.cerrar_dar_pts = self.findChild(QPushButton, "cerrar_dar_pts")
+        self.amarilla_mas_azul = self.findChild(QPushButton, "amarilla_mas_azul")
+        self.amarilla_menos_azul = self.findChild(QPushButton, "amarilla_menos_azul")
+        self.amarilla_mas_rojo = self.findChild(QPushButton, "amarilla_mas_rojo")
+        self.amarilla_menos_rojo = self.findChild(QPushButton, "amarilla_menos_rojo")
+        self.tm_azul = self.findChild(QPushButton, "tm_azul")
+        self.tm_rojo = self.findChild(QPushButton, "tm_rojo")
         self.tiempo_seg = self.findChild(QLineEdit, "tiempo_seg")
         self.tiempo_min = self.findChild(QLineEdit, "tiempo_min")
         self.dar_pts = self.findChild(QFrame, "dar_pts")
         self.pausado = self.findChild(QLabel, "pausado")
         self.ctrl_pts_azul = self.findChild(QLabel, "ctrl_pts_azul")
         self.ctrl_pts_rojo = self.findChild(QLabel, "ctrl_pts_rojo")
+        self.amarillas_azul = self.findChild(QLabel, "amarillas_azul")
+        self.amarillas_rojo = self.findChild(QLabel, "amarillas_rojo")
+        self.rojo_tm = self.findChild(QLabel, "rojo_tm")
+        self.azul_tm = self.findChild(QLabel, "azul_tm")
         self.tiempo_min.setText("0")
         self.tiempo_seg.setText("00")
         self.cancelar.hide()
@@ -146,6 +168,14 @@ class ControlVentana(QMainWindow):
         self.dos_pts.clicked.connect(lambda: self.srPts(2)) # Sumar o Restar Pts
         self.cuatro_pts.clicked.connect(lambda: self.srPts(4)) # Sumar o Restar Pts
         self.cerrar_dar_pts.clicked.connect(self.mostrar_dar_puntos)
+        
+        self.amarilla_mas_azul.clicked.connect(lambda: self.srAmarillas("A", "+"))
+        self.amarilla_menos_azul.clicked.connect(lambda: self.srAmarillas("A", "-"))
+        self.amarilla_mas_rojo.clicked.connect(lambda: self.srAmarillas("R", "+"))
+        self.amarilla_menos_rojo.clicked.connect(lambda: self.srAmarillas("R", "-"))
+        
+        self.tm_azul.clicked.connect(lambda: self.tiempo_medico("A"))
+        self.tm_rojo.clicked.connect(lambda: self.tiempo_medico("R"))
 
         validador_seg = QIntValidator(0, 59)
         self.tiempo_seg.setValidator(validador_seg)
@@ -160,6 +190,10 @@ class ControlVentana(QMainWindow):
         self.timer3 = QTimer()
         self.timer3.timeout.connect(self.actualizar_contador_control)
         
+        self.timer_azul = QTimer()
+        self.timer_azul.timeout.connect(lambda: self.contador_medico("A"))
+        self.timer_rojo = QTimer()
+        self.timer_rojo.timeout.connect(lambda: self.contador_medico("R"))
         
     def closeEvent(self, event):
         confirm = QMessageBox.question(
@@ -193,7 +227,89 @@ class ControlVentana(QMainWindow):
             self.dar_pts.show()
         else:
             self.dar_pts.hide()
+ 
+    def tiempo_medico(self, color = ""):
+        tmp = self.azul_tm.text().split(":")
+        min = int(tmp[0])
+        seg = int(tmp[1])
+        self.seg_azul = seg + (min * 60)
+            
+        tmp = self.rojo_tm.text().split(":")
+        min = int(tmp[0])
+        seg = int(tmp[1])
+        self.seg_rojo = seg + (min * 60)
+            
+        if color == "A":
+            self.timer_azul.start(1000)
+        else:
+            self.timer_rojo.start(1000)
+
+    def contador_medico(self, color):
+        if self.seg_azul >= 0 and color == "A":
+            minutos = self.seg_azul // 60
+            segundos = self.seg_azul % 60
+            self.azul_tm.setText(f"{minutos}:{segundos:02d}")
+            self.seg_azul -= 1
+            
+        elif self.seg_azul == 0 and color == "A":
+            self.timer_azul.stop()
+            
+        if self.seg_rojo >= 0 and color == "R":
+            minutos = self.seg_rojo // 60
+            segundos = self.seg_rojo % 60
+            self.rojo_tm.setText(f"{minutos}:{segundos:02d}")
+            self.seg_rojo -= 1
+            
+        elif self.seg_rojo == 0 and color == "R":
+            self.timer_rojo.stop()
         
+    def srAmarillas(self, color = "", sr = ""):
+        aa = int(self.amarillas_azul.text()) #aa = Amarillas Azul
+        ar = int(self.amarillas_rojo.text()) #ar = Amarillas Rojo
+        
+        if color == "A" and sr == "+" and aa < 3:
+            aa += 1
+            self.amarillas_azul.setText(f"{aa}")
+            
+            if aa == 1:
+                self.ventana_espectador.amarilla_a1.show()
+            elif aa == 2:
+                self.ventana_espectador.amarilla_a2.show()
+            else:
+                self.ventana_espectador.amarilla_a3.show()
+            
+        elif color == "A" and sr == "-" and aa > 0:
+            aa -= 1
+            self.amarillas_azul.setText(f"{aa}")
+            
+            if aa == 0:
+                self.ventana_espectador.amarilla_a1.hide()
+            elif aa == 1:
+                self.ventana_espectador.amarilla_a2.hide()
+            else:
+                self.ventana_espectador.amarilla_a3.hide()
+
+        elif color == "R" and sr == "+" and ar < 3:
+            ar += 1
+            self.amarillas_rojo.setText(f"{ar}")
+            
+            if ar == 1:
+                self.ventana_espectador.amarilla_r1.show()
+            elif ar == 2:
+                self.ventana_espectador.amarilla_r2.show()
+            else:
+                self.ventana_espectador.amarilla_r3.show()
+                
+        elif color == "R" and sr == "-" and ar > 0:
+            ar -= 1
+            self.amarillas_rojo.setText(f"{ar}")
+            
+            if ar == 0:
+                self.ventana_espectador.amarilla_r1.hide()
+            elif ar == 1:
+                self.ventana_espectador.amarilla_r2.hide()
+            else:
+                self.ventana_espectador.amarilla_r3.hide()
     
     def srPts(self, nro: int):
         if self.srPtsColor == "azul" and self.srPtsSR == "+":
@@ -336,4 +452,5 @@ if __name__ ==  "__main__":
         
     except Exception as e:
         print(e)
+        
         
