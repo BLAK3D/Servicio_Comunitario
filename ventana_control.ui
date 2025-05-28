@@ -29,7 +29,21 @@
    <string>MainWindow</string>
   </property>
   <property name="styleSheet">
-   <string notr="true">
+   <string notr="true">QPushButton {
+	color: rgb(0, 0, 0);
+	background: transparent;
+    border-radius: 10px;
+    padding: 10px;
+    border: 1px solid black;
+}
+
+QPushButton:hover {
+	background-color: rgb(206, 206, 206);
+}
+
+QPushButton:pressed {
+    background-color: rgb(80, 80, 80);
+};
 
 background-color: rgb(214, 214, 214);</string>
   </property>
@@ -47,6 +61,9 @@ background-color: rgb(214, 214, 214);</string>
      <font>
       <pointsize>12</pointsize>
      </font>
+    </property>
+    <property name="cursor">
+     <cursorShape>PointingHandCursor</cursorShape>
     </property>
     <property name="styleSheet">
      <string notr="true"/>
@@ -93,6 +110,9 @@ border-radius: 8px;</string>
        <height>40</height>
       </rect>
      </property>
+     <property name="cursor">
+      <cursorShape>PointingHandCursor</cursorShape>
+     </property>
      <property name="styleSheet">
       <string notr="true">border: 1px solid black;</string>
      </property>
@@ -118,6 +138,9 @@ border-radius: 8px;</string>
        <width>40</width>
        <height>40</height>
       </rect>
+     </property>
+     <property name="cursor">
+      <cursorShape>PointingHandCursor</cursorShape>
      </property>
      <property name="styleSheet">
       <string notr="true">border: 1px solid black;</string>
@@ -239,6 +262,9 @@ border: none
        <kerning>false</kerning>
       </font>
      </property>
+     <property name="cursor">
+      <cursorShape>PointingHandCursor</cursorShape>
+     </property>
      <property name="styleSheet">
       <string notr="true">border: 1px solid black</string>
      </property>
@@ -262,6 +288,9 @@ border: none
        <bold>true</bold>
        <kerning>false</kerning>
       </font>
+     </property>
+     <property name="cursor">
+      <cursorShape>PointingHandCursor</cursorShape>
      </property>
      <property name="styleSheet">
       <string notr="true">border: 1px solid black</string>
@@ -443,6 +472,9 @@ border-radius: 8px;</string>
        <height>40</height>
       </rect>
      </property>
+     <property name="cursor">
+      <cursorShape>PointingHandCursor</cursorShape>
+     </property>
      <property name="styleSheet">
       <string notr="true">border: 1px solid black;</string>
      </property>
@@ -468,6 +500,9 @@ border-radius: 8px;</string>
        <width>40</width>
        <height>40</height>
       </rect>
+     </property>
+     <property name="cursor">
+      <cursorShape>PointingHandCursor</cursorShape>
      </property>
      <property name="styleSheet">
       <string notr="true">border: 1px solid black;</string>
@@ -513,13 +548,13 @@ border-radius: 8px;</string>
      </property>
     </widget>
    </widget>
-   <widget class="QPushButton" name="configuracion">
+   <widget class="QPushButton" name="config">
     <property name="geometry">
      <rect>
-      <x>579</x>
+      <x>590</x>
       <y>10</y>
-      <width>71</width>
-      <height>51</height>
+      <width>60</width>
+      <height>50</height>
      </rect>
     </property>
     <property name="font">
@@ -527,15 +562,22 @@ border-radius: 8px;</string>
       <pointsize>12</pointsize>
      </font>
     </property>
+    <property name="cursor">
+     <cursorShape>PointingHandCursor</cursorShape>
+    </property>
     <property name="styleSheet">
      <string notr="true"/>
     </property>
     <property name="text">
      <string/>
     </property>
+    <property name="icon">
+     <iconset>
+      <normaloff>images/recursos/config.png</normaloff>images/recursos/config.png</iconset>
+    </property>
     <property name="iconSize">
      <size>
-      <width>60</width>
+      <width>50</width>
       <height>60</height>
      </size>
     </property>
@@ -606,6 +648,9 @@ QPushButton { color: rgb(255, 0, 0); border: 2px solid rgb(255, 0, 0); }</string
        <bold>true</bold>
       </font>
      </property>
+     <property name="cursor">
+      <cursorShape>PointingHandCursor</cursorShape>
+     </property>
      <property name="styleSheet">
       <string notr="true"/>
      </property>
@@ -633,6 +678,9 @@ QPushButton { color: rgb(255, 0, 0); border: 2px solid rgb(255, 0, 0); }</string
        <kerning>false</kerning>
       </font>
      </property>
+     <property name="cursor">
+      <cursorShape>PointingHandCursor</cursorShape>
+     </property>
      <property name="styleSheet">
       <string notr="true"/>
      </property>
@@ -655,6 +703,9 @@ QPushButton { color: rgb(255, 0, 0); border: 2px solid rgb(255, 0, 0); }</string
        <weight>75</weight>
        <bold>true</bold>
       </font>
+     </property>
+     <property name="cursor">
+      <cursorShape>PointingHandCursor</cursorShape>
      </property>
      <property name="styleSheet">
       <string notr="true"/>
@@ -679,6 +730,9 @@ QPushButton { color: rgb(255, 0, 0); border: 2px solid rgb(255, 0, 0); }</string
        <bold>true</bold>
       </font>
      </property>
+     <property name="cursor">
+      <cursorShape>PointingHandCursor</cursorShape>
+     </property>
      <property name="styleSheet">
       <string notr="true"/>
      </property>
@@ -700,6 +754,9 @@ QPushButton { color: rgb(255, 0, 0); border: 2px solid rgb(255, 0, 0); }</string
      <font>
       <pointsize>12</pointsize>
      </font>
+    </property>
+    <property name="cursor">
+     <cursorShape>PointingHandCursor</cursorShape>
     </property>
     <property name="layoutDirection">
      <enum>Qt::LeftToRight</enum>
@@ -735,6 +792,9 @@ QPushButton { color: rgb(255, 0, 0); border: 2px solid rgb(255, 0, 0); }</string
       <pointsize>12</pointsize>
      </font>
     </property>
+    <property name="cursor">
+     <cursorShape>PointingHandCursor</cursorShape>
+    </property>
     <property name="styleSheet">
      <string notr="true"/>
     </property>
@@ -768,6 +828,9 @@ QPushButton { color: rgb(255, 0, 0); border: 2px solid rgb(255, 0, 0); }</string
       <bold>true</bold>
      </font>
     </property>
+    <property name="cursor">
+     <cursorShape>PointingHandCursor</cursorShape>
+    </property>
     <property name="layoutDirection">
      <enum>Qt::LeftToRight</enum>
     </property>
@@ -799,6 +862,9 @@ QPushButton { color: rgb(255, 0, 0); border: 2px solid rgb(255, 0, 0); }</string
       <weight>75</weight>
       <bold>true</bold>
      </font>
+    </property>
+    <property name="cursor">
+     <cursorShape>PointingHandCursor</cursorShape>
     </property>
     <property name="layoutDirection">
      <enum>Qt::LeftToRight</enum>
@@ -832,6 +898,9 @@ QPushButton { color: rgb(255, 0, 0); border: 2px solid rgb(255, 0, 0); }</string
       <bold>true</bold>
      </font>
     </property>
+    <property name="cursor">
+     <cursorShape>PointingHandCursor</cursorShape>
+    </property>
     <property name="layoutDirection">
      <enum>Qt::LeftToRight</enum>
     </property>
@@ -863,6 +932,9 @@ QPushButton { color: rgb(255, 0, 0); border: 2px solid rgb(255, 0, 0); }</string
       <weight>75</weight>
       <bold>true</bold>
      </font>
+    </property>
+    <property name="cursor">
+     <cursorShape>PointingHandCursor</cursorShape>
     </property>
     <property name="layoutDirection">
      <enum>Qt::LeftToRight</enum>
@@ -1054,6 +1126,9 @@ border-radius: 7px</string>
       <pointsize>12</pointsize>
      </font>
     </property>
+    <property name="cursor">
+     <cursorShape>PointingHandCursor</cursorShape>
+    </property>
     <property name="layoutDirection">
      <enum>Qt::LeftToRight</enum>
     </property>
@@ -1088,6 +1163,9 @@ border-radius: 7px</string>
       <pointsize>12</pointsize>
      </font>
     </property>
+    <property name="cursor">
+     <cursorShape>PointingHandCursor</cursorShape>
+    </property>
     <property name="layoutDirection">
      <enum>Qt::LeftToRight</enum>
     </property>
@@ -1106,6 +1184,52 @@ border-radius: 7px</string>
       <width>30</width>
       <height>30</height>
      </size>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="finalizar">
+    <property name="enabled">
+     <bool>true</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>245</x>
+      <y>295</y>
+      <width>170</width>
+      <height>40</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>MS Shell Dlg 2</family>
+      <pointsize>11</pointsize>
+      <weight>75</weight>
+      <bold>true</bold>
+      <kerning>false</kerning>
+     </font>
+    </property>
+    <property name="cursor">
+     <cursorShape>PointingHandCursor</cursorShape>
+    </property>
+    <property name="accessibleDescription">
+     <string/>
+    </property>
+    <property name="styleSheet">
+     <string notr="true"/>
+    </property>
+    <property name="text">
+     <string>Finalizar Encuentro</string>
+    </property>
+    <property name="iconSize">
+     <size>
+      <width>60</width>
+      <height>60</height>
+     </size>
+    </property>
+    <property name="default">
+     <bool>false</bool>
+    </property>
+    <property name="flat">
+     <bool>false</bool>
     </property>
    </widget>
   </widget>

@@ -1,0 +1,629 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>ConfigWindow</class>
+ <widget class="QMainWindow" name="ConfigWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>460</width>
+    <height>360</height>
+   </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>460</width>
+    <height>360</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>460</width>
+    <height>360</height>
+   </size>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <widget class="QTabWidget" name="tabWidget">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>0</y>
+      <width>480</width>
+      <height>360</height>
+     </rect>
+    </property>
+    <property name="currentIndex">
+     <number>0</number>
+    </property>
+    <widget class="QWidget" name="tab">
+     <attribute name="title">
+      <string>Datos del Particpante</string>
+     </attribute>
+     <widget class="QLabel" name="label_4">
+      <property name="geometry">
+       <rect>
+        <x>160</x>
+        <y>120</y>
+        <width>51</width>
+        <height>21</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Peso</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_6">
+      <property name="geometry">
+       <rect>
+        <x>220</x>
+        <y>140</y>
+        <width>21</width>
+        <height>21</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Kg</string>
+      </property>
+     </widget>
+     <widget class="QSpinBox" name="peso">
+      <property name="geometry">
+       <rect>
+        <x>160</x>
+        <y>140</y>
+        <width>51</width>
+        <height>25</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>10</pointsize>
+       </font>
+      </property>
+      <property name="maximum">
+       <number>150</number>
+      </property>
+     </widget>
+     <widget class="QFrame" name="bandera">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>240</y>
+        <width>121</width>
+        <height>81</height>
+       </rect>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">border: 3px solid black;</string>
+      </property>
+      <property name="frameShape">
+       <enum>QFrame::StyledPanel</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Raised</enum>
+      </property>
+     </widget>
+     <widget class="QDateEdit" name="fecha_nacimiento">
+      <property name="geometry">
+       <rect>
+        <x>160</x>
+        <y>190</y>
+        <width>110</width>
+        <height>25</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>10</pointsize>
+       </font>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_3">
+      <property name="geometry">
+       <rect>
+        <x>160</x>
+        <y>240</y>
+        <width>101</width>
+        <height>21</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Pais / Nacionalidad</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_7">
+      <property name="geometry">
+       <rect>
+        <x>320</x>
+        <y>140</y>
+        <width>21</width>
+        <height>21</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Cm</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="eliminar">
+      <property name="geometry">
+       <rect>
+        <x>370</x>
+        <y>20</y>
+        <width>71</width>
+        <height>51</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+     </widget>
+     <widget class="QFrame" name="foto">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>20</y>
+        <width>111</width>
+        <height>141</height>
+       </rect>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">border: 3px solid black;</string>
+      </property>
+      <property name="frameShape">
+       <enum>QFrame::StyledPanel</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Raised</enum>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_5">
+      <property name="geometry">
+       <rect>
+        <x>260</x>
+        <y>120</y>
+        <width>51</width>
+        <height>21</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Altura</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label">
+      <property name="geometry">
+       <rect>
+        <x>160</x>
+        <y>20</y>
+        <width>81</width>
+        <height>21</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Nombre</string>
+      </property>
+     </widget>
+     <widget class="QSpinBox" name="altura">
+      <property name="geometry">
+       <rect>
+        <x>260</x>
+        <y>140</y>
+        <width>51</width>
+        <height>25</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>10</pointsize>
+       </font>
+      </property>
+      <property name="maximum">
+       <number>300</number>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="cargar_foto">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>160</y>
+        <width>111</width>
+        <height>23</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Cargar Foto</string>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="edad">
+      <property name="geometry">
+       <rect>
+        <x>290</x>
+        <y>190</y>
+        <width>51</width>
+        <height>25</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>10</pointsize>
+       </font>
+      </property>
+      <property name="readOnly">
+       <bool>true</bool>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_9">
+      <property name="geometry">
+       <rect>
+        <x>295</x>
+        <y>170</y>
+        <width>30</width>
+        <height>20</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Edad</string>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="nombre">
+      <property name="geometry">
+       <rect>
+        <x>160</x>
+        <y>40</y>
+        <width>181</width>
+        <height>25</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>10</pointsize>
+       </font>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_8">
+      <property name="geometry">
+       <rect>
+        <x>160</x>
+        <y>170</y>
+        <width>101</width>
+        <height>21</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Fecha de Nacimeinto</string>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="apellido">
+      <property name="geometry">
+       <rect>
+        <x>160</x>
+        <y>90</y>
+        <width>181</width>
+        <height>25</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>10</pointsize>
+       </font>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="guardar">
+      <property name="geometry">
+       <rect>
+        <x>370</x>
+        <y>260</y>
+        <width>71</width>
+        <height>51</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_2">
+      <property name="geometry">
+       <rect>
+        <x>160</x>
+        <y>70</y>
+        <width>81</width>
+        <height>21</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Apellido</string>
+      </property>
+     </widget>
+     <widget class="QComboBox" name="pais_2">
+      <property name="geometry">
+       <rect>
+        <x>160</x>
+        <y>260</y>
+        <width>181</width>
+        <height>25</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>10</pointsize>
+       </font>
+      </property>
+      <item>
+       <property name="text">
+        <string>Alemania</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Argentina</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Armenia</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Azerbaiyán</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Belgica</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Bolivia</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Brasil</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Canada</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Chile</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>China</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Colombia</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Corea del Sur</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Costa Rica</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Croacia</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Cuba</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Dinamarca</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Ecuador</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>El Salvador</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Emiratos Árabes Unidos</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>España</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Estados unidos</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Finlandia</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Francia</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Georgia</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Guyana</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Haiti</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Honduras</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Inglaterra</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Irak</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Irán</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Irlanda</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Italia</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Jamaica</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Japon</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Jordania</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Kazajistán</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Líbano</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Mexico</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Nicaragua</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Panama</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Peru</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Puerto Rico</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Reino unido</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Republica Dominicana </string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Rumania</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Rusia</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Trinidad y Tobago</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Turkmenistán</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Uruguay</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Uzbekistán</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Venezuela</string>
+       </property>
+      </item>
+     </widget>
+    </widget>
+    <widget class="QWidget" name="dfs">
+     <attribute name="title">
+      <string>Cargar Participante</string>
+     </attribute>
+    </widget>
+    <widget class="QWidget" name="tab_2">
+     <attribute name="title">
+      <string>Configuracion del Sistema</string>
+     </attribute>
+    </widget>
+   </widget>
+  </widget>
+  <action name="actionsdfs">
+   <property name="text">
+    <string>sdfs</string>
+   </property>
+  </action>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
