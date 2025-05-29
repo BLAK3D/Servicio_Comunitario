@@ -529,6 +529,7 @@ class ConfigWindow(QMainWindow):
         self.cargar_foto = self.findChild(QPushButton, "cargar_foto")
         self.asignar_rojo = self.findChild(QPushButton, "asignar_rojo")
         self.asignar_azul = self.findChild(QPushButton, "asignar_azul")
+        self.vaciar_campos = self.findChild(QPushButton, "vaciar_campos")
         self.tabla_participantes = self.findChild(QTableWidget, "tabla_participantes")
         self.bandera = self.findChild(QFrame, "bandera")
         self.foto = self.findChild(QFrame, "foto")
@@ -542,6 +543,7 @@ class ConfigWindow(QMainWindow):
         self.cargar_datos.clicked.connect(self.cargar_dato_ind)
         self.cargar_foto.clicked.connect(self.abrir_dialogo)
         self.eliminar.clicked.connect(self.eliminar_info)
+        self.vaciar_campos.clicked.connect(self.vaciarCampos)
         self.asignar_azul.clicked.connect(lambda: self.asignar_participante("A"))
         self.asignar_rojo.clicked.connect(lambda: self.asignar_participante("R"))
         self.pais.currentTextChanged.connect(self.cargar_bandera)
@@ -643,7 +645,18 @@ class ConfigWindow(QMainWindow):
         
         if ruta:
             self.bandera.setStyleSheet(f"QFrame {{ border-image: url({ruta[0]}) 0 0 0 0 stretch stretch; }}")
-
+    
+    def vaciarCampos(self):
+        self.nombre.setText("")
+        self.apellido.setText("")
+        self.id.setText("")
+        self.fecha_nacimiento.setDate(QDate(2000, 1, 1))
+        self.pais.setCurrentText("Alemania")
+        self.peso.setValue(0)
+        self.altura.setValue(0)
+        self.foto.setStyleSheet("border: 3px solid black;")
+        self.estado.setText("Registrar")
+    
     def eliminar_info(self):
         id = self.id.text()
         if id == "":
@@ -664,14 +677,7 @@ class ConfigWindow(QMainWindow):
             conexion.commit()
             print("Filas afectadas:", sql.rowcount)
             
-            self.nombre.setText("")
-            self.apellido.setText("")
-            self.id.setText("")
-            self.fecha_nacimiento.setDate(QDate(2000, 1, 1))
-            self.pais.setCurrentText("Alemania")
-            self.peso.setValue(0)
-            self.altura.setValue(0)
-            self.foto.setStyleSheet("border: 3px solid black;")
+            self.vaciarCampos()
             QMessageBox.information(self, "Datos Eliminados", "Registro Borrado exitosamente", QMessageBox.Ok)
             self.cargar_todos_los_datos()
             
@@ -689,14 +695,7 @@ class ConfigWindow(QMainWindow):
         if nombre == "" or apellido == "" or altura == 0 or peso == 0 or fecha_nacimiento == "":
             QMessageBox.critical(self, "Datos Faltantes", "Al parecer hay campos en blanco, por favor rellenalos", QMessageBox.Ok)
         else:
-            if self.ruta_origen_imagen != "":
-                ruta_destino = r"images\\participantes"
-                os.makedirs(ruta_destino, exist_ok=True)
-                nombre_base, extension = os.path.splitext(os.path.basename(self.ruta_origen_imagen))
-                nuevo_nombre = f"ID-{id}{extension}"
-                ruta_destino = os.path.join(ruta_destino, nuevo_nombre)
-                shutil.copy(self.ruta_origen_imagen, ruta_destino)
-                ruta_relativa = f"images/participantes/{nuevo_nombre}"
+            ruta_relativa = self.rutaRelativa(id)
                 
             
             sql.execute(f"SELECT id FROM paises WHERE pais LIKE '{pais}'")
@@ -705,17 +704,25 @@ class ConfigWindow(QMainWindow):
             if id == "" and self.estado.text() == "Registrar": # Crear Nuevo Registro
                 
                 if self.ruta_origen_imagen != "":
-                    sql.execute("INSERT INTO participantes (nombre, apellido, id_nacionalidad, peso, altura, fecha_nacimiento, ruta_imagen) VALUES (?, ?, ?, ?, ?, ?, ?)", (nombre, apellido, id_pais[0], peso, altura, fecha_nacimiento, ruta_relativa))
+                    sql.execute("INSERT INTO participantes (nombre, apellido, id_nacionalidad, peso, altura, fecha_nacimiento) VALUES (?, ?, ?, ?, ?, ?)", (nombre, apellido, id_pais[0], peso, altura, fecha_nacimiento))
+                    conexion.commit()
+                    print("Filas afectadas:", sql.rowcount)
+                    QMessageBox.information(self, "Datos Guardados", "Registro Creado exitosamente", QMessageBox.Ok)
+                    self.cargar_todos_los_datos()
+                    fila = self.tabla_participantes.rowCount() - 1
+                    self.id.setText(str(self.tabla_participantes.item(fila, 4).text()))
+                    ruta_relativa = self.rutaRelativa(self.id.text())
+                    print(f"{ruta_relativa} {self.id.text()}")
+                    sql.execute(f"UPDATE participantes SET ruta_imagen = '{ruta_relativa}' WHERE id = {self.id.text()}")
                                 
                 else:
                     sql.execute("INSERT INTO participantes (nombre, apellido, id_nacionalidad, peso, altura, fecha_nacimiento) VALUES (?, ?, ?, ?, ?, ?)",  (nombre, apellido, id_pais[0], peso, altura, fecha_nacimiento))
-            
-                conexion.commit()
-                print("Filas afectadas:", sql.rowcount)
-                QMessageBox.information(self, "Datos Guardados", "Registro Creado exitosamente", QMessageBox.Ok)
-                self.cargar_todos_los_datos()
-                fila = self.tabla_participantes.rowCount() - 1
-                self.id.setText(str(self.tabla_participantes.item(fila, 4).text()))
+                    conexion.commit()
+                    print("Filas afectadas:", sql.rowcount)
+                    QMessageBox.information(self, "Datos Guardados", "Registro Creado exitosamente", QMessageBox.Ok)
+                    self.cargar_todos_los_datos()
+                    fila = self.tabla_participantes.rowCount() - 1
+                    self.id.setText(str(self.tabla_participantes.item(fila, 4).text()))
                 
             elif id != "" and self.estado.text() == "Modificar": # Modificar Registro
                 if self.ruta_origen_imagen != "":
@@ -728,7 +735,17 @@ class ConfigWindow(QMainWindow):
                 print("Filas afectadas:", sql.rowcount)
                 QMessageBox.information(self, "Datos Modificados", "Registro Modificado exitosamente", QMessageBox.Ok)
                 self.cargar_todos_los_datos()
-    
+                
+    def rutaRelativa(self, id):
+        if self.ruta_origen_imagen != "" and id != "":
+            ruta_destino = r"images\\participantes"
+            os.makedirs(ruta_destino, exist_ok=True)
+            nombre_base, extension = os.path.splitext(os.path.basename(self.ruta_origen_imagen))
+            nuevo_nombre = f"ID-{id}{extension}"
+            ruta_destino = os.path.join(ruta_destino, nuevo_nombre)
+            shutil.copy(self.ruta_origen_imagen, ruta_destino)
+            return f"images/participantes/{nuevo_nombre}"
+            
     def asignar_participante(self, color):
         id = self.id.text()
         
