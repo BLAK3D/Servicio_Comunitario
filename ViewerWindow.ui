@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>MainWindow</class>
- <widget class="QMainWindow" name="MainWindow">
+ <class>ViewerWindow</class>
+ <widget class="QMainWindow" name="ViewerWindow">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -113,7 +113,7 @@
          <property name="frameShadow">
           <enum>QFrame::Raised</enum>
          </property>
-         <widget class="QFrame" name="foto_azul">
+         <widget class="QFrame" name="foto_1">
           <property name="geometry">
            <rect>
             <x>30</x>
@@ -133,6 +133,22 @@ border-radius: 8px;</string>
           <property name="frameShadow">
            <enum>QFrame::Raised</enum>
           </property>
+          <widget class="QLabel" name="foto_azul">
+           <property name="geometry">
+            <rect>
+             <x>3</x>
+             <y>3</y>
+             <width>124</width>
+             <height>144</height>
+            </rect>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">border: none;</string>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+          </widget>
          </widget>
          <widget class="QFrame" name="tiempo_azul">
           <property name="geometry">
@@ -395,7 +411,7 @@ border-radius: 8px;</string>
             </property>
            </widget>
           </widget>
-          <widget class="QFrame" name="bandera_azul">
+          <widget class="QFrame" name="bandera_1">
            <property name="geometry">
             <rect>
              <x>410</x>
@@ -407,7 +423,7 @@ border-radius: 8px;</string>
            <property name="styleSheet">
             <string notr="true">background: transparent;
 border: 3px solid white;
-border-radius: 8px;</string>
+border-radius: 5px;</string>
            </property>
            <property name="frameShape">
             <enum>QFrame::StyledPanel</enum>
@@ -415,6 +431,22 @@ border-radius: 8px;</string>
            <property name="frameShadow">
             <enum>QFrame::Raised</enum>
            </property>
+           <widget class="QLabel" name="bandera_azul">
+            <property name="geometry">
+             <rect>
+              <x>3</x>
+              <y>3</y>
+              <width>124</width>
+              <height>94</height>
+             </rect>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">border: none;</string>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+           </widget>
           </widget>
           <widget class="QPushButton" name="tm1">
            <property name="geometry">
@@ -510,7 +542,7 @@ font-weight: bold;</string>
            </property>
           </widget>
          </widget>
-         <widget class="QFrame" name="foto_rojo">
+         <widget class="QFrame" name="foto_2">
           <property name="geometry">
            <rect>
             <x>30</x>
@@ -530,6 +562,22 @@ border-radius: 8px;</string>
           <property name="frameShadow">
            <enum>QFrame::Raised</enum>
           </property>
+          <widget class="QLabel" name="foto_rojo">
+           <property name="geometry">
+            <rect>
+             <x>3</x>
+             <y>3</y>
+             <width>124</width>
+             <height>144</height>
+            </rect>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">border: none;</string>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+          </widget>
          </widget>
          <widget class="QLabel" name="puntos_rojo1">
           <property name="geometry">
@@ -741,7 +789,7 @@ border-radius: 8px;</string>
             </property>
            </widget>
           </widget>
-          <widget class="QFrame" name="bandera_rojo">
+          <widget class="QFrame" name="bandera_2">
            <property name="geometry">
             <rect>
              <x>410</x>
@@ -753,7 +801,7 @@ border-radius: 8px;</string>
            <property name="styleSheet">
             <string notr="true">background: transparent;
 border: 3px solid white;
-border-radius: 8px;</string>
+border-radius: 5px;</string>
            </property>
            <property name="frameShape">
             <enum>QFrame::StyledPanel</enum>
@@ -761,6 +809,22 @@ border-radius: 8px;</string>
            <property name="frameShadow">
             <enum>QFrame::Raised</enum>
            </property>
+           <widget class="QLabel" name="bandera_rojo">
+            <property name="geometry">
+             <rect>
+              <x>3</x>
+              <y>3</y>
+              <width>124</width>
+              <height>94</height>
+             </rect>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">border: none;</string>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+           </widget>
           </widget>
           <widget class="QPushButton" name="tm2">
            <property name="geometry">

@@ -1,15 +1,16 @@
 from PyQt5.uic import loadUi
-from PyQt5.QtWidgets import QMainWindow, QApplication, QLabel, QFrame, QPushButton, QMessageBox, QLineEdit
-from PyQt5.QtCore import QTimer, Qt
-from PyQt5.QtGui import QIntValidator
-import sys
+from PyQt5.QtWidgets import QMainWindow, QApplication, QLabel, QFrame, QPushButton, QMessageBox, QLineEdit, QSpinBox, QComboBox, QDateEdit, QTableWidget, QTableWidgetItem, QFileDialog, QTabWidget
+from PyQt5.QtCore import QTimer, Qt, QDate
+from PyQt5.QtGui import QIntValidator, QPixmap
+from datetime import datetime
+import sys, shutil, os, sqlite3
 
-class MainWindow(QMainWindow):
+class ViewerWindow(QMainWindow):
     
     def __init__(self):
-        super(MainWindow,  self).__init__()
-        loadUi("ventana_espectador.ui", self)
-        self.control_window = None  # Referencia a la ventana de control (se asigna externamente)
+        super(ViewerWindow,  self).__init__()
+        loadUi("ViewerWindow.ui", self)
+        self.WControl = None  # Referencia a la ventana de control (se asigna externamente)
 
         self.punto_azul = self.findChild(QLabel, "puntos_azul")
         self.punto_rojo = self.findChild(QLabel, "puntos_rojo1")
@@ -17,11 +18,17 @@ class MainWindow(QMainWindow):
         self.contador2 = self.findChild(QLabel, "contador_2")
         self.medico_azul = self.findChild(QLabel, "medico_azul")
         self.medico_rojo = self.findChild(QLabel, "medico_rojo")
+        self.bandera_azul = self.findChild(QLabel, "bandera_azul")
+        self.bandera_rojo = self.findChild(QLabel, "bandera_rojo")
+        self.foto_azul = self.findChild(QLabel, "foto_azul")
+        self.foto_rojo = self.findChild(QLabel, "foto_rojo")
+        self.nombre_azul = self.findChild(QLabel, "nombre_azul")
+        self.nombre_rojo = self.findChild(QLabel, "nombre_rojo")
         self.blue_frame = self.findChild(QFrame, "frame_azul")
         self.yellow_blue_frame = self.findChild(QFrame, "tiempo_azul")
         self.yellow_red_frame = self.findChild(QFrame, "tiempo_rojo")
-        self.foto_rojo = self.findChild(QFrame, "foto_rojo")
-        self.foto_azul = self.findChild(QFrame, "foto_azul")
+        self.foto_2 = self.findChild(QFrame, "foto_2")
+        self.foto_1 = self.findChild(QFrame, "foto_1")
         self.info_rojo = self.findChild(QFrame, "info_rojo")
         self.info_azul = self.findChild(QFrame, "info_azul")
         self.amarilla_r1 = self.findChild(QFrame, "amarilla_r1")
@@ -59,8 +66,8 @@ class MainWindow(QMainWindow):
         self.contador2.setGeometry(self.yellow_blue_frame.width() - 265, 10, 250, 90)
         self.punto_rojo.setGeometry(self.blue_frame.width() -320, round((self.blue_frame.height() - 240)/ 2), 300, 240)
         self.punto_azul.setGeometry(self.blue_frame.width() -320, round((self.blue_frame.height() - 240)/ 2), 300, 240)
-        self.foto_azul.setGeometry(30, round((self.blue_frame.height() -210)/2), 130, 150)
-        self.foto_rojo.setGeometry(30, round(((self.blue_frame.height() -210)/2) +60), 130, 150)
+        self.foto_1.setGeometry(30, round((self.blue_frame.height() -210)/2), 130, 150)
+        self.foto_2.setGeometry(30, round(((self.blue_frame.height() -210)/2) +60), 130, 150)
         
         if self.blue_frame.width() > 1030:
             self.info_azul.setGeometry(170, round((self.blue_frame.height() -250)/2) , 540, 190)
@@ -87,8 +94,8 @@ class MainWindow(QMainWindow):
         )
         if confirm == QMessageBox.Yes:
             event.accept()
-            if self.control_window:
-                self.control_window.close()  # Cierra la ventana de control si existe
+            if self.WControl:
+                self.WControl.close()  # Cierra la ventana de control si existe
         else:
             event.ignore()
        
@@ -125,13 +132,13 @@ class MainWindow(QMainWindow):
         self.segundos = seg  # Tiempo inicial en segundos
         self.timer = QTimer()
         self.timer.timeout.connect(self.actualizar_contador)
-
-    
-class ControlVentana(QMainWindow):
-    def __init__(self, ventana_espectador):
+   
+class ControlWindow(QMainWindow):
+    def __init__(self, WVierwer):
         super().__init__()
-        loadUi("ventana_control.ui", self)
-        self.ventana_espectador = ventana_espectador
+        loadUi("ControlWindow.ui", self)
+        self.WVierwer = WVierwer
+        self.WControl = None
         self.boton_control = self.findChild(QPushButton, "play_pause")
         self.editar = self.findChild(QPushButton, "editar")
         self.cancelar = self.findChild(QPushButton, "cancelar")
@@ -151,6 +158,7 @@ class ControlVentana(QMainWindow):
         self.tm_rojo = self.findChild(QPushButton, "tm_rojo")
         self.reset_tm_azul = self.findChild(QPushButton, "reset_tm_azul")
         self.reset_tm_rojo = self.findChild(QPushButton, "reset_tm_rojo")
+        self.config = self.findChild(QPushButton, "config")
         self.tiempo_seg = self.findChild(QLineEdit, "tiempo_seg")
         self.tiempo_min = self.findChild(QLineEdit, "tiempo_min")
         self.dar_pts = self.findChild(QFrame, "dar_pts")
@@ -159,6 +167,8 @@ class ControlVentana(QMainWindow):
         self.ctrl_pts_rojo = self.findChild(QLabel, "ctrl_pts_rojo")
         self.amarillas_azul = self.findChild(QLabel, "amarillas_azul")
         self.amarillas_rojo = self.findChild(QLabel, "amarillas_rojo")
+        self.participante_azul = self.findChild(QLabel, "participante_azul")
+        self.participante_rojo = self.findChild(QLabel, "participante_rojo")
         self.rojo_tm = self.findChild(QLabel, "rojo_tm")
         self.azul_tm = self.findChild(QLabel, "azul_tm")
         self.tiempo_min.setText("0")
@@ -168,6 +178,7 @@ class ControlVentana(QMainWindow):
         self.reset_tm_rojo.hide()
         self.reset_tm_azul.hide()
         
+        self.config.clicked.connect(self.abrir_configuracion)
         self.boton_control.clicked.connect(self.cambiar_estado_timer)
         self.editar.clicked.connect(self.permitir_cambios)
         self.cancelar.clicked.connect(self.restaurar_tiempo)
@@ -218,7 +229,7 @@ class ControlVentana(QMainWindow):
             QMessageBox.No
         )
         if confirm == QMessageBox.Yes:
-            self.ventana_espectador.close()  # Cierra la ventana de espectador
+            self.WVierwer.close()  # Cierra la ventana de espectador
             event.accept()
         else:
             event.ignore()
@@ -256,14 +267,14 @@ class ControlVentana(QMainWindow):
         
         if color == "A" and confirm == QMessageBox.Yes:
             self.azul_tm.setText("2:00")
-            self.ventana_espectador.medico_azul.hide()
-            self.ventana_espectador.tm1.hide()
+            self.WVierwer.medico_azul.hide()
+            self.WVierwer.tm1.hide()
             self.reset_tm_azul.hide()
             
         elif color == "R" and confirm == QMessageBox.Yes:
             self.rojo_tm.setText("2:00")
-            self.ventana_espectador.medico_rojo.hide()
-            self.ventana_espectador.tm2.hide()
+            self.WVierwer.medico_rojo.hide()
+            self.WVierwer.tm2.hide()
             self.reset_tm_rojo.hide()
         
     def tiempo_medico(self, color = ""):
@@ -279,8 +290,8 @@ class ControlVentana(QMainWindow):
             
         if color == "A":
             if not self.timer_azul.isActive():
-                self.ventana_espectador.medico_azul.show()
-                self.ventana_espectador.tm1.show()
+                self.WVierwer.medico_azul.show()
+                self.WVierwer.tm1.show()
                 self.reset_tm_azul.hide()
                 self.azul_tm.setStyleSheet("color: red;")
                 self.timer_azul.start(1000)
@@ -290,8 +301,8 @@ class ControlVentana(QMainWindow):
                 self.timer_azul.stop()
         else:
             if not self.timer_rojo.isActive():
-                self.ventana_espectador.medico_rojo.show()
-                self.ventana_espectador.tm2.show()
+                self.WVierwer.medico_rojo.show()
+                self.WVierwer.tm2.show()
                 self.reset_tm_rojo.hide()
                 self.rojo_tm.setStyleSheet("color: red;")
                 self.timer_rojo.start(1000)
@@ -305,7 +316,7 @@ class ControlVentana(QMainWindow):
             minutos = self.seg_azul // 60
             segundos = self.seg_azul % 60
             self.azul_tm.setText(f"{minutos}:{segundos:02d}")
-            self.ventana_espectador.medico_azul.setText(f"{minutos}:{segundos:02d}")
+            self.WVierwer.medico_azul.setText(f"{minutos}:{segundos:02d}")
             self.seg_azul -= 1
             
         elif self.seg_azul == 0 and color == "A":
@@ -316,7 +327,7 @@ class ControlVentana(QMainWindow):
             min2 = self.seg_rojo // 60
             seg2 = self.seg_rojo % 60
             self.rojo_tm.setText(f"{min2}:{seg2:02d}")
-            self.ventana_espectador.medico_rojo.setText(f"{min2}:{seg2:02d}")
+            self.WVierwer.medico_rojo.setText(f"{min2}:{seg2:02d}")
             self.seg_rojo -= 1
             
         elif self.seg_rojo == 0 and color == "R":
@@ -332,67 +343,67 @@ class ControlVentana(QMainWindow):
             self.amarillas_azul.setText(f"{aa}")
             
             if aa == 1:
-                self.ventana_espectador.amarilla_a1.show()
+                self.WVierwer.amarilla_a1.show()
             elif aa == 2:
-                self.ventana_espectador.amarilla_a2.show()
+                self.WVierwer.amarilla_a2.show()
             else:
-                self.ventana_espectador.amarilla_a3.show()
+                self.WVierwer.amarilla_a3.show()
             
         elif color == "A" and sr == "-" and aa > 0:
             aa -= 1
             self.amarillas_azul.setText(f"{aa}")
             
             if aa == 0:
-                self.ventana_espectador.amarilla_a1.hide()
+                self.WVierwer.amarilla_a1.hide()
             elif aa == 1:
-                self.ventana_espectador.amarilla_a2.hide()
+                self.WVierwer.amarilla_a2.hide()
             else:
-                self.ventana_espectador.amarilla_a3.hide()
+                self.WVierwer.amarilla_a3.hide()
 
         elif color == "R" and sr == "+" and ar < 3:
             ar += 1
             self.amarillas_rojo.setText(f"{ar}")
             
             if ar == 1:
-                self.ventana_espectador.amarilla_r1.show()
+                self.WVierwer.amarilla_r1.show()
             elif ar == 2:
-                self.ventana_espectador.amarilla_r2.show()
+                self.WVierwer.amarilla_r2.show()
             else:
-                self.ventana_espectador.amarilla_r3.show()
+                self.WVierwer.amarilla_r3.show()
                 
         elif color == "R" and sr == "-" and ar > 0:
             ar -= 1
             self.amarillas_rojo.setText(f"{ar}")
             
             if ar == 0:
-                self.ventana_espectador.amarilla_r1.hide()
+                self.WVierwer.amarilla_r1.hide()
             elif ar == 1:
-                self.ventana_espectador.amarilla_r2.hide()
+                self.WVierwer.amarilla_r2.hide()
             else:
-                self.ventana_espectador.amarilla_r3.hide()
+                self.WVierwer.amarilla_r3.hide()
     
     def srPts(self, nro: int):
         if self.srPtsColor == "azul" and self.srPtsSR == "+":
             self.ctrl_pts_azul.setText(str(int(self.ctrl_pts_azul.text()) + nro))
-            self.ventana_espectador.punto_azul.setText(str(self.ctrl_pts_azul.text()))
+            self.WVierwer.punto_azul.setText(str(self.ctrl_pts_azul.text()))
             
         elif self.srPtsColor == "azul" and self.srPtsSR == "-":
             if int(self.ctrl_pts_azul.text()) - nro < 0:
                 self.ctrl_pts_azul.setText("0")
             else:
                 self.ctrl_pts_azul.setText(str(int(self.ctrl_pts_azul.text()) - nro))
-            self.ventana_espectador.punto_azul.setText(str(self.ctrl_pts_azul.text()))
+            self.WVierwer.punto_azul.setText(str(self.ctrl_pts_azul.text()))
                 
         elif self.srPtsColor == "rojo" and self.srPtsSR == "+":
             self.ctrl_pts_rojo.setText(str(int(self.ctrl_pts_rojo.text()) + nro))
-            self.ventana_espectador.punto_rojo.setText(str(self.ctrl_pts_rojo.text()))
+            self.WVierwer.punto_rojo.setText(str(self.ctrl_pts_rojo.text()))
             
         elif self.srPtsColor == "rojo" and self.srPtsSR == "-":
             if int(self.ctrl_pts_rojo.text()) - nro < 0:
                 self.ctrl_pts_rojo.setText("0")
             else:
                 self.ctrl_pts_rojo.setText(str(int(self.ctrl_pts_rojo.text()) - nro))
-            self.ventana_espectador.punto_rojo.setText(str(self.ctrl_pts_rojo.text()))
+            self.WVierwer.punto_rojo.setText(str(self.ctrl_pts_rojo.text()))
                 
         self.dar_pts.hide()
                 
@@ -424,11 +435,11 @@ class ControlVentana(QMainWindow):
                 ts = 0
             
             seg = tm + ts
-            if self.ventana_espectador.segundos + 1 != seg:
+            if self.WVierwer.segundos + 1 != seg:
                 self.cancelar.show()
                         
     def cambiar_estado_timer(self):
-        if not self.ventana_espectador.timer.isActive(): # Cuando esta pausado (darle Play)
+        if not self.WVierwer.timer.isActive(): # Cuando esta pausado (darle Play)
             try:
                 tm = int(self.tiempo_seg.text()) 
             except:
@@ -449,15 +460,15 @@ class ControlVentana(QMainWindow):
             self.cancelar.hide()
             self.pausado.hide()
             
-            self.ventana_espectador.ajuste_tiempo(self.seg)
-            self.ventana_espectador.play_tiempo()
+            self.WVierwer.ajuste_tiempo(self.seg)
+            self.WVierwer.play_tiempo()
             self.timer3.start(1000)
             
         else: # Cuando esta activo (darle pause)
             self.editar.show()
             self.pausado.show()
             
-            self.ventana_espectador.pause_tiempo()
+            self.WVierwer.pause_tiempo()
             self.timer3.stop()
             
     def permitir_cambios(self):
@@ -468,7 +479,7 @@ class ControlVentana(QMainWindow):
         self.tiempo_seg.setFocus()
     
     def restaurar_tiempo(self):
-        seg = self.ventana_espectador.segundos + 1
+        seg = self.WVierwer.segundos + 1
         if seg >= 0 :
             minutos = seg // 60
             segundos = seg % 60
@@ -492,24 +503,311 @@ class ControlVentana(QMainWindow):
         else:
             self.timer3.stop() 
             self.editar.show()   
-            self.pausado.show()     
+            self.pausado.show() 
+            
+    def abrir_configuracion(self):
+        WConfig.show()
+
+class ConfigWindow(QMainWindow):
+    def __init__(self, WViewer, WControl) :
+        super(ConfigWindow,  self).__init__()
+        loadUi("ConfigWindow.ui", self)
+        self.WViewer = WViewer
+        self.WControl = WControl
+        self.nombre = self.findChild(QLineEdit, "nombre")
+        self.apellido = self.findChild(QLineEdit, "apellido")
+        self.edad = self.findChild(QLineEdit, "edad")
+        self.id = self.findChild(QLineEdit, "id")
+        self.buscador = self.findChild(QLineEdit, "buscador")
+        self.peso = self.findChild(QSpinBox, "peso")
+        self.altura = self.findChild(QSpinBox, "altura")
+        self.pais = self.findChild(QComboBox, "pais")
+        self.fecha_nacimiento = self.findChild(QDateEdit, "fecha_nacimiento")
+        self.guardar = self.findChild(QPushButton, "guardar")
+        self.eliminar = self.findChild(QPushButton, "eliminar")
+        self.cargar_datos = self.findChild(QPushButton, "cargar_datos")
+        self.cargar_foto = self.findChild(QPushButton, "cargar_foto")
+        self.asignar_rojo = self.findChild(QPushButton, "asignar_rojo")
+        self.asignar_azul = self.findChild(QPushButton, "asignar_azul")
+        self.tabla_participantes = self.findChild(QTableWidget, "tabla_participantes")
+        self.bandera = self.findChild(QFrame, "bandera")
+        self.foto = self.findChild(QFrame, "foto")
+        self.tabWidget = self.findChild(QTabWidget, "tabWidget")
+        self.estado = self.findChild(QLabel, "estado")
+        
+        self.idRojoAsignado = ""
+        self.idAzulAsignado = ""
+        
+        self.guardar.clicked.connect(self.guardar_info)
+        self.cargar_datos.clicked.connect(self.cargar_dato_ind)
+        self.cargar_foto.clicked.connect(self.abrir_dialogo)
+        self.eliminar.clicked.connect(self.eliminar_info)
+        self.asignar_azul.clicked.connect(lambda: self.asignar_participante("A"))
+        self.asignar_rojo.clicked.connect(lambda: self.asignar_participante("R"))
+        self.pais.currentTextChanged.connect(self.cargar_bandera)
+        self.buscador.textEdited.connect(self.busqueda)
+        self.fecha_nacimiento.dateChanged.connect(self.cambiar_edad)
+       
+        self.tabla_participantes.setColumnHidden(4, True)
+        self.ruta_origen_imagen = ""
+        
+        self.cambiar_edad()
+        sql.execute("SELECT pais FROM paises ORDER BY pais ASC")
+        datos = sql.fetchall()
+        
+        for fila in datos:
+            self.pais.addItem(fila[0])
+
+        self.cargar_todos_los_datos()
+    
+    def abrir_dialogo(self):
+        self.ruta_origen_imagen, _ = QFileDialog.getOpenFileName(self, "Seleccionar imagen", "", "Imágenes (*.png *.jpg *.bmp)")
+        self.foto.setStyleSheet(f"QFrame {{ border-image: url({self.ruta_origen_imagen}) 0 0 0 0 stretch stretch; }}")
+
+    def cargar_todos_los_datos(self):   
+        
+        # Obtener datos de la tabla
+        sql.execute("SELECT nombre || ' ' || apellido, peso, altura, id, fecha_nacimiento FROM participantes")
+        datos = sql.fetchall()
+
+        # Configurar el número de filas y columnas
+        if datos:
+            self.tabla_participantes.setRowCount(len(datos))
+            self.tabla_participantes.setColumnCount(len(datos[0]))  # Basado en la primera fila
+
+            # Insertar datos en la tabla
+            for fila, registro in enumerate(datos):
+                for columna, valor in enumerate(registro):
+                    if columna == 0:
+                        self.tabla_participantes.setItem(fila, columna, QTableWidgetItem(str(valor)))
+                    elif columna == 1:
+                        edad = self.calcular_edad(registro[4])
+                        self.tabla_participantes.setItem(fila, columna, QTableWidgetItem(str(edad)))
+                        self.tabla_participantes.setItem(fila, columna + 1, QTableWidgetItem(str(valor)))
+
+                    else:
+                        self.tabla_participantes.setItem(fila, columna + 1, QTableWidgetItem(str(valor)))
+                        
+    def cargar_dato_ind(self):
+        fila = self.tabla_participantes.currentRow()
+        
+        if fila >= 0:
+            id = int(self.tabla_participantes.item(fila, 4).text())
+            
+            sql.execute(f"SELECT a.nombre, a.apellido, a.peso, a.altura, a.fecha_nacimiento, b.pais, a.ruta_imagen FROM participantes a INNER JOIN paises b ON a.id_nacionalidad = b.id WHERE a.id = {id}")
+            datos = sql.fetchone()
+            
+            edad = self.calcular_edad(datos[4])
+            
+            self.nombre.setText(datos[0])
+            self.apellido.setText(datos[1])
+            self.peso.setValue(int(datos[2]))
+            self.altura.setValue(int(datos[3]))
+            self.edad.setText(str(edad))
+            self.pais.setCurrentText(datos[5]) 
+            self.id.setText(str(id))
+            if datos[6]:
+                self.foto.setStyleSheet(f"QFrame {{ border-image: url({datos[6]}) 0 0 0 0 stretch stretch; }}")
+                self.ruta_modificar = datos[6]
+                
+            self.tabWidget.setCurrentIndex(0)
+            self.buscador.setText("")
+            self.cargar_todos_los_datos()
+            self.estado.setText("Modificar") 
+    
+    def cambiar_edad(self):
+        edad = self.calcular_edad(self.fecha_nacimiento.text())
+        self.edad.setText(f"{edad}")
+        
+    def calcular_edad(self, fecha_nacimiento: str):
+        # Convertir la fecha de nacimiento a objeto datetime
+        nacimiento = datetime.strptime(fecha_nacimiento, "%d/%m/%Y")
+    
+        # Obtener la fecha actual
+        hoy = datetime.today()
+
+        # Calcular la edad
+        edad = hoy.year - nacimiento.year
+
+        # Ajustar si aún no ha pasado el cumpleaños en el año actual
+        if (hoy.month, hoy.day) < (nacimiento.month, nacimiento.day):
+            edad -= 1
+
+        return edad
+
+    
+    def cargar_bandera(self):
+        texto = self.pais.currentText()
+        sql.execute("SELECT ruta_imagen FROM paises WHERE pais = ?", (texto,))
+        ruta = sql.fetchone()
+        
+        if ruta:
+            self.bandera.setStyleSheet(f"QFrame {{ border-image: url({ruta[0]}) 0 0 0 0 stretch stretch; }}")
+
+    def eliminar_info(self):
+        id = self.id.text()
+        if id == "":
+            QMessageBox.critical(self, "Sin Datos Cargados", "No se ha cargado ningun dato que se pueda eliminar")
+            return
+        
+        respuesta = QMessageBox.question(self, "Eliminar Registro", "¿Esta seguro de eliminar definitivamente este Registro", QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+        
+        if respuesta == QMessageBox.Yes:
+            sql.execute(f"SELECT ruta_imagen FROM participantes WHERE id = {id}")
+            rutas = sql.fetchone()
+            ruta = rutas[0]
+            
+            if os.path.exists(ruta) and ruta != "":  # Verificar si el la imagen existe
+                os.remove(ruta)
+            
+            sql.execute(f"DELETE FROM participantes WHERE id = {id}")
+            conexion.commit()
+            print("Filas afectadas:", sql.rowcount)
+            
+            self.nombre.setText("")
+            self.apellido.setText("")
+            self.id.setText("")
+            self.fecha_nacimiento.setDate(QDate(2000, 1, 1))
+            self.pais.setCurrentText("Alemania")
+            self.peso.setValue(0)
+            self.altura.setValue(0)
+            self.foto.setStyleSheet("border: 3px solid black;")
+            QMessageBox.information(self, "Datos Eliminados", "Registro Borrado exitosamente", QMessageBox.Ok)
+            self.cargar_todos_los_datos()
+            
+
+         
+    def guardar_info(self):
+        nombre = self.nombre.text()
+        apellido = self.apellido.text()
+        altura = int(self.altura.text())
+        peso = int(self.peso.text())
+        pais = self.pais.currentText()
+        fecha_nacimiento = self.fecha_nacimiento.text()
+        id = self.id.text()
+        
+        if nombre == "" or apellido == "" or altura == 0 or peso == 0 or fecha_nacimiento == "":
+            QMessageBox.critical(self, "Datos Faltantes", "Al parecer hay campos en blanco, por favor rellenalos", QMessageBox.Ok)
+        else:
+            if self.ruta_origen_imagen != "":
+                ruta_destino = r"images\\participantes"
+                os.makedirs(ruta_destino, exist_ok=True)
+                nombre_base, extension = os.path.splitext(os.path.basename(self.ruta_origen_imagen))
+                nuevo_nombre = f"ID-{id}{extension}"
+                ruta_destino = os.path.join(ruta_destino, nuevo_nombre)
+                shutil.copy(self.ruta_origen_imagen, ruta_destino)
+                ruta_relativa = f"images/participantes/{nuevo_nombre}"
+                
+            
+            sql.execute(f"SELECT id FROM paises WHERE pais LIKE '{pais}'")
+            id_pais = sql.fetchone()
+                
+            if id == "" and self.estado.text() == "Registrar": # Crear Nuevo Registro
+                
+                if self.ruta_origen_imagen != "":
+                    sql.execute("INSERT INTO participantes (nombre, apellido, id_nacionalidad, peso, altura, fecha_nacimiento, ruta_imagen) VALUES (?, ?, ?, ?, ?, ?, ?)", (nombre, apellido, id_pais[0], peso, altura, fecha_nacimiento, ruta_relativa))
+                                
+                else:
+                    sql.execute("INSERT INTO participantes (nombre, apellido, id_nacionalidad, peso, altura, fecha_nacimiento) VALUES (?, ?, ?, ?, ?, ?)",  (nombre, apellido, id_pais[0], peso, altura, fecha_nacimiento))
+            
+                conexion.commit()
+                print("Filas afectadas:", sql.rowcount)
+                QMessageBox.information(self, "Datos Guardados", "Registro Creado exitosamente", QMessageBox.Ok)
+                self.cargar_todos_los_datos()
+                fila = self.tabla_participantes.rowCount() - 1
+                self.id.setText(str(self.tabla_participantes.item(fila, 4).text()))
+                
+            elif id != "" and self.estado.text() == "Modificar": # Modificar Registro
+                if self.ruta_origen_imagen != "":
+                    sql.execute(f"UPDATE participantes SET nombre = ?, apellido = ?, peso = ?, altura = ?, fecha_nacimiento = ?, ruta_imagen = ?, id_nacionalidad = ? WHERE id = ?", (nombre, apellido, peso, altura, fecha_nacimiento, ruta_relativa, id_pais[0], id))
+                                
+                else:
+                    sql.execute(f"UPDATE participantes SET nombre = ?, apellido = ?, peso = ?, altura = ?, fecha_nacimiento = ?, id_nacionalidad = ? WHERE id = ?", (nombre, apellido, peso, altura, fecha_nacimiento, id_pais[0], id))
+                
+                conexion.commit()
+                print("Filas afectadas:", sql.rowcount)
+                QMessageBox.information(self, "Datos Modificados", "Registro Modificado exitosamente", QMessageBox.Ok)
+                self.cargar_todos_los_datos()
+    
+    def asignar_participante(self, color):
+        id = self.id.text()
+        
+        if id == "":
+            QMessageBox.critical(self, "Sin Datos Cargados", "No hay datos cargados, si vas a ingresar uno nuevo, guarda el registro y vuelve a presionar este boton")
+            return
+        
+        if id == self.idAzulAsignado or id == self.idRojoAsignado:
+            QMessageBox.critical(self, "Datos en uso", "Estos datos ya estan asignados a un participante, intenta con otros datos")
+            return
+
+        sql.execute(f"SELECT ruta_imagen FROM paises WHERE pais LIKE '{self.pais.currentText()}'")
+        datos = sql.fetchone()
+        ruta = datos[0]
+        
+        nombre_completo = f"{self.nombre.text()} {self.apellido.text()}"
+
+        if color == "A":
+            self.WControl.participante_azul.setText(f"{nombre_completo}")
+            self.WViewer.bandera_azul.setPixmap(QPixmap(f"{ruta}"))
+            self.WViewer.bandera_azul.setScaledContents(True)
+            self.WViewer.foto_azul.setPixmap(QPixmap(self.ruta_modificar))
+            self.WViewer.foto_azul.setScaledContents(True)
+            self.WViewer.nombre_azul.setText(f"{nombre_completo}")
+            self.idRojoAsignado = id
+        elif color == "R":
+            self.WControl.participante_rojo.setText(f"{nombre_completo}")
+            self.WViewer.bandera_rojo.setPixmap(QPixmap(f"{ruta}"))
+            self.WViewer.bandera_rojo.setScaledContents(True)
+            self.WViewer.foto_rojo.setPixmap(QPixmap(self.ruta_modificar))
+            self.WViewer.foto_rojo.setScaledContents(True)
+            self.WViewer.nombre_rojo.setText(f"{nombre_completo}")
+            self.idAzulAsignado = id
+            
+    def busqueda(self):
+        texto = self.buscador.text()
+         # Obtener datos de la tabla
+        sql.execute(f"SELECT nombre || ' ' || apellido, peso, altura, id, fecha_nacimiento FROM participantes WHERE nombre || ' ' || apellido LIKE '%{texto}%'")
+        datos = sql.fetchall()
+
+        # Configurar el número de filas y columnas
+        if datos:
+            self.tabla_participantes.setRowCount(len(datos))
+            self.tabla_participantes.setColumnCount(len(datos[0]))  # Basado en la primera fila
+
+            # Insertar datos en la tabla
+            for fila, registro in enumerate(datos):
+                for columna, valor in enumerate(registro):
+                    if columna == 0:
+                        self.tabla_participantes.setItem(fila, columna, QTableWidgetItem(str(valor)))
+                    elif columna == 1:
+                        edad = self.calcular_edad(registro[4])
+                        self.tabla_participantes.setItem(fila, columna, QTableWidgetItem(str(edad)))
+                        self.tabla_participantes.setItem(fila, columna + 1, QTableWidgetItem(str(valor)))
+
+                    else:
+                        self.tabla_participantes.setItem(fila, columna + 1, QTableWidgetItem(str(valor))) 
 
 
 if __name__ ==  "__main__":
     try:
+        conexion = sqlite3.connect("BD.db")
+        sql = conexion.cursor()
         app = QApplication(sys.argv)
-        espectador = MainWindow()
-        control = ControlVentana(espectador)
+        WViewer = ViewerWindow()
+        WControl = ControlWindow(WViewer)
+        WConfig = ConfigWindow(WViewer, WControl)
         
         # Configurar referencias cruzadas
-        espectador.control_window = control
+        WViewer.WControl = WControl
+        WControl.WConfig = WConfig
 
-        espectador.show()
-        control.show()
+        WViewer.show()
+        WControl.show()
 
         sys.exit(app.exec_())
         
     except Exception as e:
         print(e)
+        
         
         
