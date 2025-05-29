@@ -589,6 +589,8 @@ class ConfigWindow(QMainWindow):
 
                     else:
                         self.tabla_participantes.setItem(fila, columna + 1, QTableWidgetItem(str(valor)))
+        else:
+            self.tabla_participantes.setRowCount(0)
                         
     def cargar_dato_ind(self):
         fila = self.tabla_participantes.currentRow()
@@ -668,10 +670,10 @@ class ConfigWindow(QMainWindow):
         if respuesta == QMessageBox.Yes:
             sql.execute(f"SELECT ruta_imagen FROM participantes WHERE id = {id}")
             rutas = sql.fetchone()
-            ruta = rutas[0]
-            
-            if os.path.exists(ruta) and ruta != "":  # Verificar si el la imagen existe
-                os.remove(ruta)
+
+            if rutas[0] != None:
+                if os.path.exists(rutas[0]):  # Verificar si el la imagen existe
+                    os.remove(rutas[0])
             
             sql.execute(f"DELETE FROM participantes WHERE id = {id}")
             conexion.commit()
@@ -705,15 +707,15 @@ class ConfigWindow(QMainWindow):
                 
                 if self.ruta_origen_imagen != "":
                     sql.execute("INSERT INTO participantes (nombre, apellido, id_nacionalidad, peso, altura, fecha_nacimiento) VALUES (?, ?, ?, ?, ?, ?)", (nombre, apellido, id_pais[0], peso, altura, fecha_nacimiento))
-                    conexion.commit()
                     print("Filas afectadas:", sql.rowcount)
                     QMessageBox.information(self, "Datos Guardados", "Registro Creado exitosamente", QMessageBox.Ok)
                     self.cargar_todos_los_datos()
+                    
                     fila = self.tabla_participantes.rowCount() - 1
                     self.id.setText(str(self.tabla_participantes.item(fila, 4).text()))
                     ruta_relativa = self.rutaRelativa(self.id.text())
-                    print(f"{ruta_relativa} {self.id.text()}")
                     sql.execute(f"UPDATE participantes SET ruta_imagen = '{ruta_relativa}' WHERE id = {self.id.text()}")
+                    conexion.commit()
                                 
                 else:
                     sql.execute("INSERT INTO participantes (nombre, apellido, id_nacionalidad, peso, altura, fecha_nacimiento) VALUES (?, ?, ?, ?, ?, ?)",  (nombre, apellido, id_pais[0], peso, altura, fecha_nacimiento))
@@ -761,13 +763,17 @@ class ConfigWindow(QMainWindow):
         datos = sql.fetchone()
         ruta = datos[0]
         
+        sql.execute(f"SELECT ruta_imagen FROM participantes WHERE id = '{id}'")
+        datos2 = sql.fetchone()
+        ruta_participante = "" if datos2[0] == None else datos2[0]
+        
         nombre_completo = f"{self.nombre.text()} {self.apellido.text()}"
 
         if color == "A":
             self.WControl.participante_azul.setText(f"{nombre_completo}")
             self.WViewer.bandera_azul.setPixmap(QPixmap(f"{ruta}"))
             self.WViewer.bandera_azul.setScaledContents(True)
-            self.WViewer.foto_azul.setPixmap(QPixmap(self.ruta_modificar))
+            self.WViewer.foto_azul.setPixmap(QPixmap(ruta_participante))
             self.WViewer.foto_azul.setScaledContents(True)
             self.WViewer.nombre_azul.setText(f"{nombre_completo}")
             self.idRojoAsignado = id
@@ -775,7 +781,7 @@ class ConfigWindow(QMainWindow):
             self.WControl.participante_rojo.setText(f"{nombre_completo}")
             self.WViewer.bandera_rojo.setPixmap(QPixmap(f"{ruta}"))
             self.WViewer.bandera_rojo.setScaledContents(True)
-            self.WViewer.foto_rojo.setPixmap(QPixmap(self.ruta_modificar))
+            self.WViewer.foto_rojo.setPixmap(QPixmap(ruta_participante))
             self.WViewer.foto_rojo.setScaledContents(True)
             self.WViewer.nombre_rojo.setText(f"{nombre_completo}")
             self.idAzulAsignado = id
@@ -802,8 +808,9 @@ class ConfigWindow(QMainWindow):
                         self.tabla_participantes.setItem(fila, columna + 1, QTableWidgetItem(str(valor)))
 
                     else:
-                        self.tabla_participantes.setItem(fila, columna + 1, QTableWidgetItem(str(valor))) 
-
+                        self.tabla_participantes.setItem(fila, columna + 1, QTableWidgetItem(str(valor)))
+        else:
+            self.tabla_participantes.setRowCount(0) 
 
 if __name__ ==  "__main__":
     try:
