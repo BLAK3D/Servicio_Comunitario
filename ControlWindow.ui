@@ -29,23 +29,7 @@
    <string>MainWindow</string>
   </property>
   <property name="styleSheet">
-   <string notr="true">QPushButton {
-	color: rgb(0, 0, 0);
-	background: transparent;
-    border-radius: 10px;
-    padding: 10px;
-    border: 1px solid black;
-}
-
-QPushButton:hover {
-	background-color: rgb(206, 206, 206);
-}
-
-QPushButton:pressed {
-    background-color: rgb(80, 80, 80);
-};
-
-background-color: rgb(214, 214, 214);</string>
+   <string notr="true"/>
   </property>
   <widget class="QWidget" name="centralwidget">
    <widget class="QPushButton" name="play_pause">
@@ -66,7 +50,22 @@ background-color: rgb(214, 214, 214);</string>
      <cursorShape>PointingHandCursor</cursorShape>
     </property>
     <property name="styleSheet">
-     <string notr="true"/>
+     <string notr="true">QPushButton {
+	background: transparent;
+    border-radius: 10px;
+    padding: 10px;
+	color: black; 
+	border: 2px solid black;
+}
+
+QPushButton:hover {
+	background-color: rgb(206, 206, 206);
+}
+
+QPushButton:pressed {
+    background-color: rgb(80, 80, 80);
+}
+</string>
     </property>
     <property name="text">
      <string/>
@@ -92,8 +91,26 @@ background-color: rgb(214, 214, 214);</string>
      </rect>
     </property>
     <property name="styleSheet">
-     <string notr="true">border: 3px solid black;
-border-radius: 8px;</string>
+     <string notr="true">QPushButton {
+	background: transparent;
+    border-radius: 10px;
+    padding: 10px;
+	color: black; 
+	border: 2px solid black;
+}
+
+QPushButton:hover {
+	background-color: rgb(206, 206, 206);
+}
+
+QPushButton:pressed {
+    background-color: rgb(80, 80, 80);
+}
+
+QFrame {
+	border: 3px solid black;
+	border-radius: 8px;
+}</string>
     </property>
     <property name="frameShape">
      <enum>QFrame::StyledPanel</enum>
@@ -196,8 +213,26 @@ border-radius: 8px;</string>
      </rect>
     </property>
     <property name="styleSheet">
-     <string notr="true">border: 3px solid black;
-border-radius: 8px;</string>
+     <string notr="true">QPushButton {
+	background: transparent;
+    border-radius: 10px;
+    padding: 10px;
+	color: black; 
+	border: 2px solid black;
+}
+
+QPushButton:hover {
+	background-color: rgb(206, 206, 206);
+}
+
+QPushButton:pressed {
+    background-color: rgb(80, 80, 80);
+}
+
+QFrame{
+	border: 3px solid black;
+	border-radius: 8px;
+}</string>
     </property>
     <property name="frameShape">
      <enum>QFrame::StyledPanel</enum>
@@ -454,8 +489,26 @@ background-color: rgb(255, 0, 0);</string>
      </rect>
     </property>
     <property name="styleSheet">
-     <string notr="true">border: 3px solid black;
-border-radius: 8px;</string>
+     <string notr="true">QPushButton {
+	background: transparent;
+    border-radius: 10px;
+    padding: 10px;
+	color: black; 
+	border: 2px solid black;
+}
+
+QPushButton:hover {
+	background-color: rgb(206, 206, 206);
+}
+
+QPushButton:pressed {
+    background-color: rgb(80, 80, 80);
+}
+
+QFrame {
+	border: 3px solid black;
+	border-radius: 8px;
+}</string>
     </property>
     <property name="frameShape">
      <enum>QFrame::StyledPanel</enum>
@@ -566,7 +619,22 @@ border-radius: 8px;</string>
      <cursorShape>PointingHandCursor</cursorShape>
     </property>
     <property name="styleSheet">
-     <string notr="true"/>
+     <string notr="true">QPushButton {
+	background: transparent;
+    border-radius: 10px;
+    padding: 10px;
+	color: black; 
+	border: 2px solid black;
+}
+
+QPushButton:hover {
+	background-color: rgb(206, 206, 206);
+}
+
+QPushButton:pressed {
+    background-color: rgb(80, 80, 80);
+}
+</string>
     </property>
     <property name="text">
      <string/>
@@ -624,7 +692,22 @@ border-radius: 8px;</string>
 	background-color: rgb(0, 0, 0);
 }
 
-QPushButton { color: rgb(255, 0, 0); border: 2px solid rgb(255, 0, 0); }</string>
+QPushButton {
+	background: transparent;
+    border-radius: 10px;
+    padding: 10px;
+	color: rgb(255, 0, 0); 
+	border: 2px solid rgb(255, 0, 0);
+}
+
+QPushButton:hover {
+	background-color: rgb(206, 206, 206);
+}
+
+QPushButton:pressed {
+    background-color: rgb(80, 80, 80);
+}
+</string>
     </property>
     <property name="frameShape">
      <enum>QFrame::StyledPanel</enum>
@@ -762,7 +845,22 @@ QPushButton { color: rgb(255, 0, 0); border: 2px solid rgb(255, 0, 0); }</string
      <enum>Qt::LeftToRight</enum>
     </property>
     <property name="styleSheet">
-     <string notr="true"/>
+     <string notr="true">QPushButton {
+	background: transparent;
+    border-radius: 10px;
+    padding: 10px;
+	color: black; 
+	border: 2px solid black;
+}
+
+QPushButton:hover {
+	background-color: rgb(206, 206, 206);
+}
+
+QPushButton:pressed {
+    background-color: rgb(80, 80, 80);
+}
+</string>
     </property>
     <property name="text">
      <string/>
@@ -796,7 +894,22 @@ QPushButton { color: rgb(255, 0, 0); border: 2px solid rgb(255, 0, 0); }</string
      <cursorShape>PointingHandCursor</cursorShape>
     </property>
     <property name="styleSheet">
-     <string notr="true"/>
+     <string notr="true">QPushButton {
+	background: transparent;
+    border-radius: 10px;
+    padding: 10px;
+	color: black; 
+	border: 2px solid black;
+}
+
+QPushButton:hover {
+	background-color: rgb(206, 206, 206);
+}
+
+QPushButton:pressed {
+    background-color: rgb(80, 80, 80);
+}
+</string>
     </property>
     <property name="text">
      <string/>
@@ -835,7 +948,22 @@ QPushButton { color: rgb(255, 0, 0); border: 2px solid rgb(255, 0, 0); }</string
      <enum>Qt::LeftToRight</enum>
     </property>
     <property name="styleSheet">
-     <string notr="true"/>
+     <string notr="true">QPushButton {
+	background: transparent;
+    border-radius: 10px;
+    padding: 10px;
+	color: black; 
+	border: 2px solid black;
+}
+
+QPushButton:hover {
+	background-color: rgb(206, 206, 206);
+}
+
+QPushButton:pressed {
+    background-color: rgb(80, 80, 80);
+}
+</string>
     </property>
     <property name="text">
      <string>-</string>
@@ -870,7 +998,22 @@ QPushButton { color: rgb(255, 0, 0); border: 2px solid rgb(255, 0, 0); }</string
      <enum>Qt::LeftToRight</enum>
     </property>
     <property name="styleSheet">
-     <string notr="true"/>
+     <string notr="true">QPushButton {
+	background: transparent;
+    border-radius: 10px;
+    padding: 10px;
+	color: black; 
+	border: 2px solid black;
+}
+
+QPushButton:hover {
+	background-color: rgb(206, 206, 206);
+}
+
+QPushButton:pressed {
+    background-color: rgb(80, 80, 80);
+}
+</string>
     </property>
     <property name="text">
      <string>+</string>
@@ -905,7 +1048,22 @@ QPushButton { color: rgb(255, 0, 0); border: 2px solid rgb(255, 0, 0); }</string
      <enum>Qt::LeftToRight</enum>
     </property>
     <property name="styleSheet">
-     <string notr="true"/>
+     <string notr="true">QPushButton {
+	background: transparent;
+    border-radius: 10px;
+    padding: 10px;
+	color: black; 
+	border: 2px solid black;
+}
+
+QPushButton:hover {
+	background-color: rgb(206, 206, 206);
+}
+
+QPushButton:pressed {
+    background-color: rgb(80, 80, 80);
+}
+</string>
     </property>
     <property name="text">
      <string>-</string>
@@ -940,7 +1098,22 @@ QPushButton { color: rgb(255, 0, 0); border: 2px solid rgb(255, 0, 0); }</string
      <enum>Qt::LeftToRight</enum>
     </property>
     <property name="styleSheet">
-     <string notr="true"/>
+     <string notr="true">QPushButton {
+	background: transparent;
+    border-radius: 10px;
+    padding: 10px;
+	color: black; 
+	border: 2px solid black;
+}
+
+QPushButton:hover {
+	background-color: rgb(206, 206, 206);
+}
+
+QPushButton:pressed {
+    background-color: rgb(80, 80, 80);
+}
+</string>
     </property>
     <property name="text">
      <string>+</string>
@@ -1133,7 +1306,22 @@ border-radius: 7px</string>
      <enum>Qt::LeftToRight</enum>
     </property>
     <property name="styleSheet">
-     <string notr="true"/>
+     <string notr="true">QPushButton {
+	background: transparent;
+    border-radius: 10px;
+    padding: 10px;
+	color: black; 
+	border: 2px solid black;
+}
+
+QPushButton:hover {
+	background-color: rgb(206, 206, 206);
+}
+
+QPushButton:pressed {
+    background-color: rgb(80, 80, 80);
+}
+</string>
     </property>
     <property name="text">
      <string/>
@@ -1170,7 +1358,22 @@ border-radius: 7px</string>
      <enum>Qt::LeftToRight</enum>
     </property>
     <property name="styleSheet">
-     <string notr="true"/>
+     <string notr="true">QPushButton {
+	background: transparent;
+    border-radius: 10px;
+    padding: 10px;
+	color: black; 
+	border: 2px solid black;
+}
+
+QPushButton:hover {
+	background-color: rgb(206, 206, 206);
+}
+
+QPushButton:pressed {
+    background-color: rgb(80, 80, 80);
+}
+</string>
     </property>
     <property name="text">
      <string/>
@@ -1214,7 +1417,22 @@ border-radius: 7px</string>
      <string/>
     </property>
     <property name="styleSheet">
-     <string notr="true"/>
+     <string notr="true">QPushButton {
+	background: transparent;
+    border-radius: 10px;
+    padding: 10px;
+	color: black; 
+	border: 2px solid black;
+}
+
+QPushButton:hover {
+	background-color: rgb(206, 206, 206);
+}
+
+QPushButton:pressed {
+    background-color: rgb(80, 80, 80);
+}
+</string>
     </property>
     <property name="text">
      <string>Finalizar Encuentro</string>

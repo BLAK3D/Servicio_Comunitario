@@ -1,9 +1,10 @@
 from PyQt5.uic import loadUi
 from PyQt5.QtWidgets import QMainWindow, QApplication, QLabel, QFrame, QPushButton, QMessageBox, QLineEdit, QSpinBox, QComboBox, QDateEdit, QTableWidget, QTableWidgetItem, QFileDialog, QTabWidget
-from PyQt5.QtCore import QTimer, Qt, QDate
-from PyQt5.QtGui import QIntValidator, QPixmap
+from PyQt5.QtCore import QTimer, Qt, QDate, QRegExp
+from PyQt5.QtGui import QIntValidator, QPixmap, QRegExpValidator
 from datetime import datetime
-import sys, shutil, os, sqlite3
+import sys, shutil, os, sqlite3, string, winsound, threading
+
 
 class ViewerWindow(QMainWindow):
     
@@ -56,9 +57,10 @@ class ViewerWindow(QMainWindow):
         
         self.timer2 = QTimer()
         self.timer2.timeout.connect(self.cuadrar)
-        self.timer2.start(1) 
-       
+        self.timer2.start(1)
         
+        self.setWindowFlags(Qt.Window | Qt.CustomizeWindowHint | Qt.WindowMinMaxButtonsHint) # Deshabilitar boton de cierre
+
     def ajuste_ventana(self):
         self.yellow_blue_frame.setGeometry(0, self.blue_frame.height() - 60, round(self.blue_frame.width() * 0.55), 116)
         self.yellow_red_frame.setGeometry(0, -60, round(self.blue_frame.width() * 0.55), 116)
@@ -83,21 +85,6 @@ class ViewerWindow(QMainWindow):
         # Ajustar posición cuando la ventana cambia de tamaño 
         self.ajuste_ventana()
         super().resizeEvent(event)
-        
-    def closeEvent(self, event):
-        confirm = QMessageBox.question(
-            self,
-            "Confirmar cierre",
-            "¿Estás seguro que deseas cerrar la ventana?",
-            QMessageBox.Yes | QMessageBox.No,
-            QMessageBox.No
-        )
-        if confirm == QMessageBox.Yes:
-            event.accept()
-            if self.WControl:
-                self.WControl.close()  # Cierra la ventana de control si existe
-        else:
-            event.ignore()
        
     def cuadrar(self):
         self.ajuste_ventana()
@@ -212,8 +199,8 @@ class ControlWindow(QMainWindow):
         self.tiempo_min.setMaxLength(1)
         self.tiempo_min.textChanged.connect(self.capturar_cambio_tiempo)
         
-        self.timer3 = QTimer()
-        self.timer3.timeout.connect(self.actualizar_contador_control)
+        self.timer_principal = QTimer()
+        self.timer_principal.timeout.connect(self.actualizar_contador_control)
         
         self.timer_azul = QTimer()
         self.timer_azul.timeout.connect(lambda: self.contador_medico("A"))
@@ -295,10 +282,17 @@ class ControlWindow(QMainWindow):
                 self.reset_tm_azul.hide()
                 self.azul_tm.setStyleSheet("color: red;")
                 self.timer_azul.start(1000)
+                self.timer_principal.stop()
+                self.WVierwer.timer.stop()
+                self.pausado.setText("Pausado")
             else:
                 self.azul_tm.setStyleSheet("")
                 self.reset_tm_azul.show()
                 self.timer_azul.stop()
+                if not self.timer_rojo.isActive():
+                    self.timer_principal.start(1000)
+                    self.WVierwer.timer.start(1000)
+                    self.pausado.setText("")
         else:
             if not self.timer_rojo.isActive():
                 self.WVierwer.medico_rojo.show()
@@ -306,10 +300,17 @@ class ControlWindow(QMainWindow):
                 self.reset_tm_rojo.hide()
                 self.rojo_tm.setStyleSheet("color: red;")
                 self.timer_rojo.start(1000)
+                self.timer_principal.stop()
+                self.WVierwer.timer.stop()
+                self.pausado.setText("Pausado")
             else:
                 self.rojo_tm.setStyleSheet("")
                 self.reset_tm_rojo.show()
                 self.timer_rojo.stop()
+                if not self.timer_azul.isActive():
+                    self.timer_principal.start(1000)
+                    self.WVierwer.timer.start(1000)
+                    self.pausado.setText("")
 
     def contador_medico(self, color):
         if self.seg_azul > 0 and color == "A":
@@ -423,7 +424,7 @@ class ControlWindow(QMainWindow):
         self.capturar_cambio_tiempo()
     
     def capturar_cambio_tiempo(self):
-        if not self.timer3.isActive():
+        if not self.timer_principal.isActive():
             try:
                 tm = int(self.tiempo_seg.text()) 
             except:
@@ -439,6 +440,11 @@ class ControlWindow(QMainWindow):
                 self.cancelar.show()
                         
     def cambiar_estado_timer(self):
+        if (self.participante_azul.text() == "Participante Azul" or self.participante_rojo.text() ==  "Participante Rojo") and self.timer_principal.isActive() == False:
+            resp = QMessageBox.warning(self, "Sin Datos Cargados", "Hay datos de algun participante que no se han cargado, desea iniciar el tiempo de todas maneras?", QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+            if resp == QMessageBox.No:
+                return
+        
         if not self.WVierwer.timer.isActive(): # Cuando esta pausado (darle Play)
             try:
                 tm = int(self.tiempo_seg.text()) 
@@ -462,14 +468,14 @@ class ControlWindow(QMainWindow):
             
             self.WVierwer.ajuste_tiempo(self.seg)
             self.WVierwer.play_tiempo()
-            self.timer3.start(1000)
+            self.timer_principal.start(1000)
             
         else: # Cuando esta activo (darle pause)
             self.editar.show()
             self.pausado.show()
             
             self.WVierwer.pause_tiempo()
-            self.timer3.stop()
+            self.timer_principal.stop()
             
     def permitir_cambios(self):
         self.tiempo_min.setFocusPolicy(Qt.ClickFocus)
@@ -491,7 +497,7 @@ class ControlWindow(QMainWindow):
         self.cancelar.hide()
             
     def actualizar_contador_control(self):
-        if self.seg >= 0:
+        if self.seg > 0:
             minutos = self.seg // 60
             segundos = self.seg % 60
             self.tiempo_min.setText(f"{minutos}")
@@ -501,13 +507,18 @@ class ControlWindow(QMainWindow):
                 self.tiempo_seg.setText(f"{segundos}")
             self.seg -= 1
         else:
-            self.timer3.stop() 
+            self.timer_principal.stop() 
             self.editar.show()   
-            self.pausado.show() 
-            
+            self.pausado.show()
+            self.tiempo_seg.setText("00")
+            threading.Thread(target=lambda: winsound.Beep(350, 1000)).start()
+   
     def abrir_configuracion(self):
-        WConfig.show()
-
+        if not self.timer_principal.isActive():
+            WConfig.show()
+        else:
+            QMessageBox.critical(self, "Encuentro Acivo", "No se pueden realizar configuraciones mientras el encuentra esta activo. Finaliza el encuentro para hacer configuraciones")
+        
 class ConfigWindow(QMainWindow):
     def __init__(self, WViewer, WControl) :
         super(ConfigWindow,  self).__init__()
@@ -549,6 +560,12 @@ class ConfigWindow(QMainWindow):
         self.pais.currentTextChanged.connect(self.cargar_bandera)
         self.buscador.textEdited.connect(self.busqueda)
         self.fecha_nacimiento.dateChanged.connect(self.cambiar_edad)
+       
+        solo_letras = QRegExp("[A-Za-zÁÉÍÓÚáéíóúÑñ ]+")
+        self.buscador.setValidator(QRegExpValidator(solo_letras, self.buscador))
+        self.nombre.setValidator(QRegExpValidator(solo_letras, self.nombre))
+        self.apellido.setValidator(QRegExpValidator(solo_letras, self.apellido))
+
        
         self.tabla_participantes.setColumnHidden(4, True)
         self.ruta_origen_imagen = ""
@@ -598,7 +615,7 @@ class ConfigWindow(QMainWindow):
         if fila >= 0:
             id = int(self.tabla_participantes.item(fila, 4).text())
             
-            sql.execute(f"SELECT a.nombre, a.apellido, a.peso, a.altura, a.fecha_nacimiento, b.pais, a.ruta_imagen FROM participantes a INNER JOIN paises b ON a.id_nacionalidad = b.id WHERE a.id = {id}")
+            sql.execute(f"SELECT a.nombre, a.apellido, a.peso, a.altura, a.fecha_nacimiento, b.pais, a.ruta_imagen FROM participantes a INNER JOIN paises b ON a.id_nacionalidad = b.id WHERE a.id = ?", (id,))
             datos = sql.fetchone()
             
             edad = self.calcular_edad(datos[4])
@@ -639,7 +656,6 @@ class ConfigWindow(QMainWindow):
 
         return edad
 
-    
     def cargar_bandera(self):
         texto = self.pais.currentText()
         sql.execute("SELECT ruta_imagen FROM paises WHERE pais = ?", (texto,))
@@ -668,26 +684,25 @@ class ConfigWindow(QMainWindow):
         respuesta = QMessageBox.question(self, "Eliminar Registro", "¿Esta seguro de eliminar definitivamente este Registro", QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
         
         if respuesta == QMessageBox.Yes:
-            sql.execute(f"SELECT ruta_imagen FROM participantes WHERE id = {id}")
+            sql.execute(f"SELECT ruta_imagen FROM participantes WHERE id = ?", (id,))
             rutas = sql.fetchone()
 
             if rutas[0] != None:
                 if os.path.exists(rutas[0]):  # Verificar si el la imagen existe
                     os.remove(rutas[0])
             
-            sql.execute(f"DELETE FROM participantes WHERE id = {id}")
+            sql.execute(f"DELETE FROM participantes WHERE id = ?", (id,))
             conexion.commit()
             print("Filas afectadas:", sql.rowcount)
             
             self.vaciarCampos()
             QMessageBox.information(self, "Datos Eliminados", "Registro Borrado exitosamente", QMessageBox.Ok)
+            self.buscador.setText("")
             self.cargar_todos_los_datos()
-            
-
-         
+   
     def guardar_info(self):
-        nombre = self.nombre.text()
-        apellido = self.apellido.text()
+        nombre = string.capwords(self.nombre.text().strip())
+        apellido = string.capwords(self.apellido.text().strip())
         altura = int(self.altura.text())
         peso = int(self.peso.text())
         pais = self.pais.currentText()
@@ -699,8 +714,7 @@ class ConfigWindow(QMainWindow):
         else:
             ruta_relativa = self.rutaRelativa(id)
                 
-            
-            sql.execute(f"SELECT id FROM paises WHERE pais LIKE '{pais}'")
+            sql.execute(f"SELECT id FROM paises WHERE pais LIKE ?", (pais,))
             id_pais = sql.fetchone()
                 
             if id == "" and self.estado.text() == "Registrar": # Crear Nuevo Registro
@@ -709,12 +723,13 @@ class ConfigWindow(QMainWindow):
                     sql.execute("INSERT INTO participantes (nombre, apellido, id_nacionalidad, peso, altura, fecha_nacimiento) VALUES (?, ?, ?, ?, ?, ?)", (nombre, apellido, id_pais[0], peso, altura, fecha_nacimiento))
                     print("Filas afectadas:", sql.rowcount)
                     QMessageBox.information(self, "Datos Guardados", "Registro Creado exitosamente", QMessageBox.Ok)
+                    self.buscador.setText("")
                     self.cargar_todos_los_datos()
                     
                     fila = self.tabla_participantes.rowCount() - 1
                     self.id.setText(str(self.tabla_participantes.item(fila, 4).text()))
                     ruta_relativa = self.rutaRelativa(self.id.text())
-                    sql.execute(f"UPDATE participantes SET ruta_imagen = '{ruta_relativa}' WHERE id = {self.id.text()}")
+                    sql.execute(f"UPDATE participantes SET ruta_imagen = ? WHERE id = ?", (ruta_relativa, self.id.text()))
                     conexion.commit()
                                 
                 else:
@@ -722,6 +737,7 @@ class ConfigWindow(QMainWindow):
                     conexion.commit()
                     print("Filas afectadas:", sql.rowcount)
                     QMessageBox.information(self, "Datos Guardados", "Registro Creado exitosamente", QMessageBox.Ok)
+                    self.buscador.setText("")
                     self.cargar_todos_los_datos()
                     fila = self.tabla_participantes.rowCount() - 1
                     self.id.setText(str(self.tabla_participantes.item(fila, 4).text()))
@@ -736,6 +752,7 @@ class ConfigWindow(QMainWindow):
                 conexion.commit()
                 print("Filas afectadas:", sql.rowcount)
                 QMessageBox.information(self, "Datos Modificados", "Registro Modificado exitosamente", QMessageBox.Ok)
+                self.buscador.setText("")
                 self.cargar_todos_los_datos()
                 
     def rutaRelativa(self, id):
@@ -759,11 +776,11 @@ class ConfigWindow(QMainWindow):
             QMessageBox.critical(self, "Datos en uso", "Estos datos ya estan asignados a un participante, intenta con otros datos")
             return
 
-        sql.execute(f"SELECT ruta_imagen FROM paises WHERE pais LIKE '{self.pais.currentText()}'")
+        sql.execute(f"SELECT ruta_imagen FROM paises WHERE pais LIKE  ?", (self.pais.currentText(),))
         datos = sql.fetchone()
         ruta = datos[0]
         
-        sql.execute(f"SELECT ruta_imagen FROM participantes WHERE id = '{id}'")
+        sql.execute(f"SELECT ruta_imagen FROM participantes WHERE id = ?", (id,))
         datos2 = sql.fetchone()
         ruta_participante = "" if datos2[0] == None else datos2[0]
         
@@ -789,7 +806,7 @@ class ConfigWindow(QMainWindow):
     def busqueda(self):
         texto = self.buscador.text()
          # Obtener datos de la tabla
-        sql.execute(f"SELECT nombre || ' ' || apellido, peso, altura, id, fecha_nacimiento FROM participantes WHERE nombre || ' ' || apellido LIKE '%{texto}%'")
+        sql.execute(f"SELECT nombre || ' ' || apellido, peso, altura, id, fecha_nacimiento FROM participantes WHERE nombre || ' ' || apellido LIKE ?", (f"%{texto}%",))
         datos = sql.fetchall()
 
         # Configurar el número de filas y columnas
@@ -832,6 +849,4 @@ if __name__ ==  "__main__":
         
     except Exception as e:
         print(e)
-        
-        
-        
+    
