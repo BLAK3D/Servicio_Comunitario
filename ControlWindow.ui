@@ -26,7 +26,11 @@
    <enum>Qt::NoFocus</enum>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>Ventana de Control</string>
+  </property>
+  <property name="windowIcon">
+   <iconset>
+    <normaloff>images/recursos/icono.ico</normaloff>images/recursos/icono.ico</iconset>
   </property>
   <property name="styleSheet">
    <string notr="true"/>

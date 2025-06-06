@@ -1,10 +1,9 @@
 from PyQt5.uic import loadUi
-from PyQt5.QtWidgets import QMainWindow, QApplication, QLabel, QFrame, QPushButton, QMessageBox, QLineEdit, QSpinBox, QComboBox, QDateEdit, QTableWidget, QTableWidgetItem, QFileDialog, QTabWidget
+from PyQt5.QtWidgets import QMainWindow, QApplication, QLabel, QFrame, QPushButton, QMessageBox, QLineEdit, QSpinBox, QComboBox, QDateEdit, QTableWidget, QTableWidgetItem, QFileDialog, QTabWidget, QGroupBox
 from PyQt5.QtCore import QTimer, Qt, QDate, QRegExp
 from PyQt5.QtGui import QIntValidator, QPixmap, QRegExpValidator
 from datetime import datetime
 import sys, shutil, os, sqlite3, string, winsound, threading
-
 
 class ViewerWindow(QMainWindow):
     
@@ -25,6 +24,8 @@ class ViewerWindow(QMainWindow):
         self.foto_rojo = self.findChild(QLabel, "foto_rojo")
         self.nombre_azul = self.findChild(QLabel, "nombre_azul")
         self.nombre_rojo = self.findChild(QLabel, "nombre_rojo")
+        self.cat_estilo = self.findChild(QLabel, "cat_estilo")
+        self.cat_peso = self.findChild(QLabel, "cat_peso")
         self.blue_frame = self.findChild(QFrame, "frame_azul")
         self.yellow_blue_frame = self.findChild(QFrame, "tiempo_azul")
         self.yellow_red_frame = self.findChild(QFrame, "tiempo_rojo")
@@ -85,6 +86,9 @@ class ViewerWindow(QMainWindow):
         # Ajustar posición cuando la ventana cambia de tamaño 
         self.ajuste_ventana()
         super().resizeEvent(event)
+        
+    def closeEvent(self, event):
+       event.ignore()
        
     def cuadrar(self):
         self.ajuste_ventana()
@@ -108,12 +112,10 @@ class ViewerWindow(QMainWindow):
     def play_tiempo(self):
         if not self.timer.isActive():
             self.timer.start(1000)
-            print("Temporizador iniciado")
     
     def pause_tiempo(self):
         if self.timer.isActive():
             self.timer.stop()
-            print("Temporizador pausado")
             
     def ajuste_tiempo(self, seg: int):
         self.segundos = seg  # Tiempo inicial en segundos
@@ -121,10 +123,10 @@ class ViewerWindow(QMainWindow):
         self.timer.timeout.connect(self.actualizar_contador)
    
 class ControlWindow(QMainWindow):
-    def __init__(self, WVierwer):
+    def __init__(self, WViewer):
         super().__init__()
         loadUi("ControlWindow.ui", self)
-        self.WVierwer = WVierwer
+        self.WViewer = WViewer
         self.WControl = None
         self.boton_control = self.findChild(QPushButton, "play_pause")
         self.editar = self.findChild(QPushButton, "editar")
@@ -146,6 +148,7 @@ class ControlWindow(QMainWindow):
         self.reset_tm_azul = self.findChild(QPushButton, "reset_tm_azul")
         self.reset_tm_rojo = self.findChild(QPushButton, "reset_tm_rojo")
         self.config = self.findChild(QPushButton, "config")
+        self.finalizar = self.findChild(QPushButton, "finalizar")
         self.tiempo_seg = self.findChild(QLineEdit, "tiempo_seg")
         self.tiempo_min = self.findChild(QLineEdit, "tiempo_min")
         self.dar_pts = self.findChild(QFrame, "dar_pts")
@@ -160,15 +163,19 @@ class ControlWindow(QMainWindow):
         self.azul_tm = self.findChild(QLabel, "azul_tm")
         self.tiempo_min.setText("0")
         self.tiempo_seg.setText("00")
+        self.seg = 0
         self.cancelar.hide()
         self.dar_pts.hide()
         self.reset_tm_rojo.hide()
         self.reset_tm_azul.hide()
         
+        self.encuentro_activo = False
+        
         self.config.clicked.connect(self.abrir_configuracion)
         self.boton_control.clicked.connect(self.cambiar_estado_timer)
         self.editar.clicked.connect(self.permitir_cambios)
         self.cancelar.clicked.connect(self.restaurar_tiempo)
+        self.finalizar.clicked.connect(self.finalizar_combate)
         
         self.subir_pts_azul.clicked.connect(lambda: self.mostrar_dar_puntos("left", "azul", "+"))
         self.bajar_pts_azul.clicked.connect(lambda: self.mostrar_dar_puntos("left", "azul", "-"))
@@ -216,12 +223,13 @@ class ControlWindow(QMainWindow):
             QMessageBox.No
         )
         if confirm == QMessageBox.Yes:
-            self.WVierwer.close()  # Cierra la ventana de espectador
-            event.accept()
+            QApplication.quit()
         else:
             event.ignore()
     
     def mostrar_dar_puntos(self, lugar = "", color= "", SR=""): # SR = Sumar o Restar
+        if self.encuentro_activo == False:
+            return
         
         if lugar == "left":
             self.dar_pts.setGeometry(25, 250, 55, 180)
@@ -254,17 +262,20 @@ class ControlWindow(QMainWindow):
         
         if color == "A" and confirm == QMessageBox.Yes:
             self.azul_tm.setText("2:00")
-            self.WVierwer.medico_azul.hide()
-            self.WVierwer.tm1.hide()
+            self.WViewer.medico_azul.hide()
+            self.WViewer.tm1.hide()
             self.reset_tm_azul.hide()
             
         elif color == "R" and confirm == QMessageBox.Yes:
             self.rojo_tm.setText("2:00")
-            self.WVierwer.medico_rojo.hide()
-            self.WVierwer.tm2.hide()
+            self.WViewer.medico_rojo.hide()
+            self.WViewer.tm2.hide()
             self.reset_tm_rojo.hide()
         
     def tiempo_medico(self, color = ""):
+        if self.encuentro_activo == False or self.seg == 0:
+            return
+        
         tmp = self.azul_tm.text().split(":")
         min = int(tmp[0])
         seg = int(tmp[1])
@@ -277,47 +288,47 @@ class ControlWindow(QMainWindow):
             
         if color == "A":
             if not self.timer_azul.isActive():
-                self.WVierwer.medico_azul.show()
-                self.WVierwer.tm1.show()
+                self.WViewer.medico_azul.show()
+                self.WViewer.tm1.show()
                 self.reset_tm_azul.hide()
                 self.azul_tm.setStyleSheet("color: red;")
                 self.timer_azul.start(1000)
                 self.timer_principal.stop()
-                self.WVierwer.timer.stop()
-                self.pausado.setText("Pausado")
+                self.WViewer.timer.stop()
+                self.pausado.show()
             else:
                 self.azul_tm.setStyleSheet("")
                 self.reset_tm_azul.show()
                 self.timer_azul.stop()
                 if not self.timer_rojo.isActive():
                     self.timer_principal.start(1000)
-                    self.WVierwer.timer.start(1000)
-                    self.pausado.setText("")
+                    self.WViewer.timer.start(1000)
+                    self.pausado.hide()
         else:
             if not self.timer_rojo.isActive():
-                self.WVierwer.medico_rojo.show()
-                self.WVierwer.tm2.show()
+                self.WViewer.medico_rojo.show()
+                self.WViewer.tm2.show()
                 self.reset_tm_rojo.hide()
                 self.rojo_tm.setStyleSheet("color: red;")
                 self.timer_rojo.start(1000)
                 self.timer_principal.stop()
-                self.WVierwer.timer.stop()
-                self.pausado.setText("Pausado")
+                self.WViewer.timer.stop()
+                self.pausado.show()
             else:
                 self.rojo_tm.setStyleSheet("")
                 self.reset_tm_rojo.show()
                 self.timer_rojo.stop()
                 if not self.timer_azul.isActive():
                     self.timer_principal.start(1000)
-                    self.WVierwer.timer.start(1000)
-                    self.pausado.setText("")
+                    self.WViewer.timer.start(1000)
+                    self.pausado.hide()
 
     def contador_medico(self, color):
         if self.seg_azul > 0 and color == "A":
             minutos = self.seg_azul // 60
             segundos = self.seg_azul % 60
             self.azul_tm.setText(f"{minutos}:{segundos:02d}")
-            self.WVierwer.medico_azul.setText(f"{minutos}:{segundos:02d}")
+            self.WViewer.medico_azul.setText(f"{minutos}:{segundos:02d}")
             self.seg_azul -= 1
             
         elif self.seg_azul == 0 and color == "A":
@@ -328,7 +339,7 @@ class ControlWindow(QMainWindow):
             min2 = self.seg_rojo // 60
             seg2 = self.seg_rojo % 60
             self.rojo_tm.setText(f"{min2}:{seg2:02d}")
-            self.WVierwer.medico_rojo.setText(f"{min2}:{seg2:02d}")
+            self.WViewer.medico_rojo.setText(f"{min2}:{seg2:02d}")
             self.seg_rojo -= 1
             
         elif self.seg_rojo == 0 and color == "R":
@@ -336,6 +347,9 @@ class ControlWindow(QMainWindow):
             self.timer_rojo.stop()
         
     def srAmarillas(self, color = "", sr = ""):
+        if self.encuentro_activo == False:
+            return
+        
         aa = int(self.amarillas_azul.text()) #aa = Amarillas Azul
         ar = int(self.amarillas_rojo.text()) #ar = Amarillas Rojo
         
@@ -344,67 +358,67 @@ class ControlWindow(QMainWindow):
             self.amarillas_azul.setText(f"{aa}")
             
             if aa == 1:
-                self.WVierwer.amarilla_a1.show()
+                self.WViewer.amarilla_a1.show()
             elif aa == 2:
-                self.WVierwer.amarilla_a2.show()
+                self.WViewer.amarilla_a2.show()
             else:
-                self.WVierwer.amarilla_a3.show()
+                self.WViewer.amarilla_a3.show()
             
         elif color == "A" and sr == "-" and aa > 0:
             aa -= 1
             self.amarillas_azul.setText(f"{aa}")
             
             if aa == 0:
-                self.WVierwer.amarilla_a1.hide()
+                self.WViewer.amarilla_a1.hide()
             elif aa == 1:
-                self.WVierwer.amarilla_a2.hide()
+                self.WViewer.amarilla_a2.hide()
             else:
-                self.WVierwer.amarilla_a3.hide()
+                self.WViewer.amarilla_a3.hide()
 
         elif color == "R" and sr == "+" and ar < 3:
             ar += 1
             self.amarillas_rojo.setText(f"{ar}")
             
             if ar == 1:
-                self.WVierwer.amarilla_r1.show()
+                self.WViewer.amarilla_r1.show()
             elif ar == 2:
-                self.WVierwer.amarilla_r2.show()
+                self.WViewer.amarilla_r2.show()
             else:
-                self.WVierwer.amarilla_r3.show()
+                self.WViewer.amarilla_r3.show()
                 
         elif color == "R" and sr == "-" and ar > 0:
             ar -= 1
             self.amarillas_rojo.setText(f"{ar}")
             
             if ar == 0:
-                self.WVierwer.amarilla_r1.hide()
+                self.WViewer.amarilla_r1.hide()
             elif ar == 1:
-                self.WVierwer.amarilla_r2.hide()
+                self.WViewer.amarilla_r2.hide()
             else:
-                self.WVierwer.amarilla_r3.hide()
+                self.WViewer.amarilla_r3.hide()
     
     def srPts(self, nro: int):
         if self.srPtsColor == "azul" and self.srPtsSR == "+":
             self.ctrl_pts_azul.setText(str(int(self.ctrl_pts_azul.text()) + nro))
-            self.WVierwer.punto_azul.setText(str(self.ctrl_pts_azul.text()))
+            self.WViewer.punto_azul.setText(str(self.ctrl_pts_azul.text()))
             
         elif self.srPtsColor == "azul" and self.srPtsSR == "-":
             if int(self.ctrl_pts_azul.text()) - nro < 0:
                 self.ctrl_pts_azul.setText("0")
             else:
                 self.ctrl_pts_azul.setText(str(int(self.ctrl_pts_azul.text()) - nro))
-            self.WVierwer.punto_azul.setText(str(self.ctrl_pts_azul.text()))
+            self.WViewer.punto_azul.setText(str(self.ctrl_pts_azul.text()))
                 
         elif self.srPtsColor == "rojo" and self.srPtsSR == "+":
             self.ctrl_pts_rojo.setText(str(int(self.ctrl_pts_rojo.text()) + nro))
-            self.WVierwer.punto_rojo.setText(str(self.ctrl_pts_rojo.text()))
+            self.WViewer.punto_rojo.setText(str(self.ctrl_pts_rojo.text()))
             
         elif self.srPtsColor == "rojo" and self.srPtsSR == "-":
             if int(self.ctrl_pts_rojo.text()) - nro < 0:
                 self.ctrl_pts_rojo.setText("0")
             else:
                 self.ctrl_pts_rojo.setText(str(int(self.ctrl_pts_rojo.text()) - nro))
-            self.WVierwer.punto_rojo.setText(str(self.ctrl_pts_rojo.text()))
+            self.WViewer.punto_rojo.setText(str(self.ctrl_pts_rojo.text()))
                 
         self.dar_pts.hide()
                 
@@ -436,16 +450,23 @@ class ControlWindow(QMainWindow):
                 ts = 0
             
             seg = tm + ts
-            if self.WVierwer.segundos + 1 != seg:
+            if self.WViewer.segundos + 1 != seg:
                 self.cancelar.show()
                         
     def cambiar_estado_timer(self):
-        if (self.participante_azul.text() == "Participante Azul" or self.participante_rojo.text() ==  "Participante Rojo") and self.timer_principal.isActive() == False:
-            resp = QMessageBox.warning(self, "Sin Datos Cargados", "Hay datos de algun participante que no se han cargado, desea iniciar el tiempo de todas maneras?", QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+        if self.tiempo_seg.text() == "00" and self.tiempo_min.text() == "0":
+            return
+        
+        if self.timer_azul.isActive() or self.timer_rojo.isActive():
+            QMessageBox.about(self, "Tiempo Medico Activo", "El tiempo medico esta activo")
+            return
+        
+        if (self.participante_azul.text() == "Participante Azul" or self.participante_rojo.text() ==  "Participante Rojo") and self.timer_principal.isActive() == False and self.encuentro_activo == False:
+            resp = QMessageBox.question(self, "Sin Datos Cargados", "Hay datos de algun participante que no se han cargado, desea iniciar el tiempo de todas maneras?", QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
             if resp == QMessageBox.No:
                 return
         
-        if not self.WVierwer.timer.isActive(): # Cuando esta pausado (darle Play)
+        if not self.WViewer.timer.isActive(): # Cuando esta pausado (darle Play)
             try:
                 tm = int(self.tiempo_seg.text()) 
             except:
@@ -466,15 +487,16 @@ class ControlWindow(QMainWindow):
             self.cancelar.hide()
             self.pausado.hide()
             
-            self.WVierwer.ajuste_tiempo(self.seg)
-            self.WVierwer.play_tiempo()
+            self.WViewer.ajuste_tiempo(self.seg)
+            self.WViewer.play_tiempo()
+            self.encuentro_activo = True
             self.timer_principal.start(1000)
             
         else: # Cuando esta activo (darle pause)
             self.editar.show()
             self.pausado.show()
             
-            self.WVierwer.pause_tiempo()
+            self.WViewer.pause_tiempo()
             self.timer_principal.stop()
             
     def permitir_cambios(self):
@@ -485,7 +507,7 @@ class ControlWindow(QMainWindow):
         self.tiempo_seg.setFocus()
     
     def restaurar_tiempo(self):
-        seg = self.WVierwer.segundos + 1
+        seg = self.WViewer.segundos + 1
         if seg >= 0 :
             minutos = seg // 60
             segundos = seg % 60
@@ -511,13 +533,63 @@ class ControlWindow(QMainWindow):
             self.editar.show()   
             self.pausado.show()
             self.tiempo_seg.setText("00")
-            threading.Thread(target=lambda: winsound.Beep(350, 1000)).start()
+            threading.Thread(target=lambda: winsound.Beep(400, 1000)).start()
    
     def abrir_configuracion(self):
-        if not self.timer_principal.isActive():
+        if not self.encuentro_activo == True:
             WConfig.show()
         else:
-            QMessageBox.critical(self, "Encuentro Acivo", "No se pueden realizar configuraciones mientras el encuentra esta activo. Finaliza el encuentro para hacer configuraciones")
+            QMessageBox.about(self, "Encuentro Acivo", "No se pueden realizar configuraciones mientras el encuentro esta activo. Finaliza el encuentro para hacer configuraciones")
+    
+    def finalizar_combate(self):
+        
+        if self.timer_principal.isActive() or self.timer_azul.isActive() or self.timer_rojo.isActive():
+            QMessageBox.about(self, "Encuentro Acivo", "Pausa los contadores para poder finalizar el encuentro")
+            return
+        else:
+            resp = QMessageBox.question(self, "Finalizar Encunetro", "¿Esta seguro de dar por finalizado el encuentro?, se vaciara toda la informacion temporal", QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+            
+            if resp == QMessageBox.Yes:
+                self.azul_tm.setText("2:00")
+                self.rojo_tm.setText("2:00")
+                self.reset_tm_azul.hide()
+                self.reset_tm_rojo.hide()
+                self.ctrl_pts_azul.setText("0")
+                self.ctrl_pts_rojo.setText("0")
+                self.amarillas_azul.setText("0")
+                self.amarillas_rojo.setText("0")
+                self.tiempo_min.setText("0")
+                self.tiempo_seg.setText("00")
+                self.tiempo_min.setReadOnly(True)
+                self.tiempo_seg.setReadOnly(True)
+                self.cancelar.hide()
+                self.dar_pts.hide()
+                self.participante_azul.setText("Participante Azul")
+                self.participante_rojo.setText("Participante Rojo")
+                
+                self.WViewer.contador_1.setText("0:00")
+                self.WViewer.contador_2.setText("0:00")
+                self.WViewer.medico_azul.hide()
+                self.WViewer.medico_rojo.hide()
+                self.WViewer.medico_azul.setText("2:00")
+                self.WViewer.medico_rojo.setText("2:00")
+                self.WViewer.tm1.hide()
+                self.WViewer.tm2.hide()
+                self.WViewer.nombre_azul.setText("Participante Azul")
+                self.WViewer.nombre_rojo.setText("Participante Rojo")
+                self.WViewer.amarilla_a1.hide()
+                self.WViewer.amarilla_a2.hide()
+                self.WViewer.amarilla_a3.hide()
+                self.WViewer.amarilla_r1.hide()
+                self.WViewer.amarilla_r2.hide()
+                self.WViewer.amarilla_r3.hide()
+                self.WViewer.punto_azul.setText("0")
+                self.WViewer.punto_rojo.setText("0")
+                self.WViewer.bandera_azul.clear() 
+                self.WViewer.bandera_rojo.clear()
+                self.WViewer.foto_rojo.clear()
+                self.WViewer.foto_azul.clear()
+                self.encuentro_activo = False
         
 class ConfigWindow(QMainWindow):
     def __init__(self, WViewer, WControl) :
@@ -533,6 +605,9 @@ class ConfigWindow(QMainWindow):
         self.peso = self.findChild(QSpinBox, "peso")
         self.altura = self.findChild(QSpinBox, "altura")
         self.pais = self.findChild(QComboBox, "pais")
+        self.cat_estilo = self.findChild(QComboBox, "cat_estilo")
+        self.cat_genero = self.findChild(QComboBox, "cat_genero")
+        self.cat_peso = self.findChild(QComboBox, "cat_peso")
         self.fecha_nacimiento = self.findChild(QDateEdit, "fecha_nacimiento")
         self.guardar = self.findChild(QPushButton, "guardar")
         self.eliminar = self.findChild(QPushButton, "eliminar")
@@ -546,6 +621,9 @@ class ConfigWindow(QMainWindow):
         self.foto = self.findChild(QFrame, "foto")
         self.tabWidget = self.findChild(QTabWidget, "tabWidget")
         self.estado = self.findChild(QLabel, "estado")
+        self.mostrar_cat = self.findChild(QGroupBox, "mostrar_cat")
+        
+        self.id.hide()
         
         self.idRojoAsignado = ""
         self.idAzulAsignado = ""
@@ -560,13 +638,16 @@ class ConfigWindow(QMainWindow):
         self.pais.currentTextChanged.connect(self.cargar_bandera)
         self.buscador.textEdited.connect(self.busqueda)
         self.fecha_nacimiento.dateChanged.connect(self.cambiar_edad)
+        self.cat_genero.currentTextChanged.connect(self.asignar_pesos_categorias)
+        self.cat_estilo.currentTextChanged.connect(self.mostrar_categoria)
+        self.cat_peso.currentTextChanged.connect(self.mostrar_categoria)
+        self.mostrar_cat.toggled.connect(self.mostrar_categoria)
        
         solo_letras = QRegExp("[A-Za-zÁÉÍÓÚáéíóúÑñ ]+")
         self.buscador.setValidator(QRegExpValidator(solo_letras, self.buscador))
         self.nombre.setValidator(QRegExpValidator(solo_letras, self.nombre))
         self.apellido.setValidator(QRegExpValidator(solo_letras, self.apellido))
 
-       
         self.tabla_participantes.setColumnHidden(4, True)
         self.ruta_origen_imagen = ""
         
@@ -577,6 +658,7 @@ class ConfigWindow(QMainWindow):
         for fila in datos:
             self.pais.addItem(fila[0])
 
+        self.asignar_pesos_categorias()
         self.cargar_todos_los_datos()
     
     def abrir_dialogo(self):
@@ -741,6 +823,7 @@ class ConfigWindow(QMainWindow):
                     self.cargar_todos_los_datos()
                     fila = self.tabla_participantes.rowCount() - 1
                     self.id.setText(str(self.tabla_participantes.item(fila, 4).text()))
+                self.estado.setText("Modificar")
                 
             elif id != "" and self.estado.text() == "Modificar": # Modificar Registro
                 if self.ruta_origen_imagen != "":
@@ -772,9 +855,12 @@ class ConfigWindow(QMainWindow):
             QMessageBox.critical(self, "Sin Datos Cargados", "No hay datos cargados, si vas a ingresar uno nuevo, guarda el registro y vuelve a presionar este boton")
             return
         
-        if id == self.idAzulAsignado or id == self.idRojoAsignado:
-            QMessageBox.critical(self, "Datos en uso", "Estos datos ya estan asignados a un participante, intenta con otros datos")
-            return
+        if id == self.idAzulAsignado and color == "R":
+            self.vaciar_ind("A")
+            self.idAzulAsignado = ""
+        elif id == self.idRojoAsignado and color == "A":
+            self.vaciar_ind("R")
+            self.idRojoAsignado = ""
 
         sql.execute(f"SELECT ruta_imagen FROM paises WHERE pais LIKE  ?", (self.pais.currentText(),))
         datos = sql.fetchone()
@@ -793,7 +879,7 @@ class ConfigWindow(QMainWindow):
             self.WViewer.foto_azul.setPixmap(QPixmap(ruta_participante))
             self.WViewer.foto_azul.setScaledContents(True)
             self.WViewer.nombre_azul.setText(f"{nombre_completo}")
-            self.idRojoAsignado = id
+            self.idAzulAsignado = id
         elif color == "R":
             self.WControl.participante_rojo.setText(f"{nombre_completo}")
             self.WViewer.bandera_rojo.setPixmap(QPixmap(f"{ruta}"))
@@ -801,8 +887,20 @@ class ConfigWindow(QMainWindow):
             self.WViewer.foto_rojo.setPixmap(QPixmap(ruta_participante))
             self.WViewer.foto_rojo.setScaledContents(True)
             self.WViewer.nombre_rojo.setText(f"{nombre_completo}")
-            self.idAzulAsignado = id
-            
+            self.idRojoAsignado = id
+    
+    def vaciar_ind(self, color):
+        if color == "A":
+            self.WViewer.nombre_azul.setText("Participante Azul")
+            self.WViewer.bandera_azul.clear() 
+            self.WViewer.foto_azul.clear()
+            self.WControl.participante_azul.setText("Participante Azul")
+        else:
+            self.WViewer.nombre_rojo.setText("Participante Rojo")
+            self.WViewer.bandera_rojo.clear()
+            self.WViewer.foto_rojo.clear()
+            self.WControl.participante_rojo.setText("Participante Rojo")
+     
     def busqueda(self):
         texto = self.buscador.text()
          # Obtener datos de la tabla
@@ -828,7 +926,35 @@ class ConfigWindow(QMainWindow):
                         self.tabla_participantes.setItem(fila, columna + 1, QTableWidgetItem(str(valor)))
         else:
             self.tabla_participantes.setRowCount(0) 
-
+    
+    def mostrar_categoria(self):
+        if self.mostrar_cat.isChecked():
+            self.WViewer.cat_estilo.setText(f"{self.cat_estilo.currentText()}")
+            self.WViewer.cat_peso.setText(f"{self.cat_peso.currentText()}")
+        else:
+            self.WViewer.cat_estilo.setText("")
+            self.WViewer.cat_peso.setText("")
+        
+    def asignar_pesos_categorias(self):
+        self.cat_peso.clear()
+        
+        if self.cat_genero.currentText() == "Masculino":
+            self.cat_peso.addItem("58KG")
+            self.cat_peso.addItem("64KG")
+            self.cat_peso.addItem("71KG")
+            self.cat_peso.addItem("79KG")
+            self.cat_peso.addItem("88KG")
+            self.cat_peso.addItem("98KG")
+            self.cat_peso.addItem("+98KG")
+        else:
+            self.cat_peso.addItem("50KG")
+            self.cat_peso.addItem("54KG")
+            self.cat_peso.addItem("59KG")
+            self.cat_peso.addItem("65KG")
+            self.cat_peso.addItem("72KG")
+            self.cat_peso.addItem("80KG")
+            self.cat_peso.addItem("+80KG")
+            
 if __name__ ==  "__main__":
     try:
         conexion = sqlite3.connect("BD.db")
@@ -849,4 +975,3 @@ if __name__ ==  "__main__":
         
     except Exception as e:
         print(e)
-    
